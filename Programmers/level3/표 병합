@@ -1,0 +1,178 @@
+import java.util.HashSet;
+import java.util.ArrayList;
+
+class Solution {
+    private static class Node {
+        private int row;
+        private int col;
+        private String valueOrNull = null;
+
+        public Node(int row, int col) {
+            this.row = row;
+            this.col = col;
+        }
+    }
+
+    private final int MAX_SIZE = 51;
+    public String[] solution(String[] commands) {
+        ArrayList<String> answers = new ArrayList<>();
+
+        Node[][] nodes = new Node[MAX_SIZE][MAX_SIZE];
+        for (int i = 1; i < nodes.length; ++i) {
+            for (int j = 1; j < nodes[0].length; ++j) {
+                nodes[i][j] = new Node(i, j);
+            }
+        }
+
+        ArrayList<HashSet<Node>> mergeLists = new ArrayList<>();
+        for (int index = 0; index < commands.length; ++index) {
+            String[] inputs = commands[index].split(" ");
+            switch (inputs[0]) {
+                case "UPDATE":
+                    if (inputs.length == 4) {
+                        update(nodes, Integer.valueOf(inputs[1]), Integer.valueOf(inputs[2]), inputs[3], mergeLists);
+                        break;
+                    }
+
+                    update(nodes, inputs[1], inputs[2]);
+                    break;
+                case "MERGE":
+                    merge(nodes, Integer.valueOf(inputs[1]), Integer.valueOf(inputs[2]), Integer.valueOf(inputs[3]), Integer.valueOf(inputs[4]), mergeLists);
+                    break;
+                case "UNMERGE":
+                    unmerge(nodes, Integer.valueOf(inputs[1]), Integer.valueOf(inputs[2]), mergeLists);
+
+                    break;
+                case "PRINT":
+                    String answer = print(nodes, Integer.valueOf(inputs[1]), Integer.valueOf(inputs[2]));
+                    answers.add(answer);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return answers.toArray(new String[0]);
+    }
+
+    private void update(Node[][] nodes, int row, int col, String valueOrNull, ArrayList<HashSet<Node>> mergeLists) {
+        Node targetNode = nodes[row][col];
+        boolean bMergeList = hasMergeList(targetNode, mergeLists);
+        if (bMergeList == false) {
+            targetNode.valueOrNull = valueOrNull;
+
+            return;
+        }
+
+        HashSet<Node> mergeList = getMergeList(targetNode, mergeLists);
+        for (Node updateNode : mergeList) {
+            updateNode.valueOrNull = valueOrNull;
+        }
+    }
+
+    private void update(Node[][] nodes, String targetValueOrNull, String newValueOrNull) {
+        // 완전탐색 먼저
+        for (int i = 1; i < MAX_SIZE; ++i) {
+            for (int j = 1; j < MAX_SIZE; ++j) {
+                if (targetValueOrNull == null && nodes[i][j].valueOrNull == null) {
+                    nodes[i][j].valueOrNull = newValueOrNull;
+
+                    continue;
+                }
+
+                if (nodes[i][j].valueOrNull == null) {
+                    continue;
+                }
+
+                if (nodes[i][j].valueOrNull.equals(targetValueOrNull) == true) {
+                    nodes[i][j].valueOrNull = newValueOrNull;
+                }
+            }
+        }
+    }
+
+    private void merge(Node[][] nodes, int row1, int col1, int row2, int col2, ArrayList<HashSet<Node>> mergeLists) {
+        if (row1 == row2 && col1 == col2) {
+            return;
+        }
+
+        Node firstNode = nodes[row1][col1];
+        Node secondNode = nodes[row2][col2];
+
+        HashSet<Node> firstMergeList = getMergeList(firstNode, mergeLists);
+        HashSet<Node> secondMergeList = getMergeList(secondNode, mergeLists);
+
+        if (firstMergeList == secondMergeList) {
+            return;
+        }
+
+        if (firstNode.valueOrNull == null && secondNode.valueOrNull != null) {
+            for (Node updateNode : firstMergeList) {
+                updateNode.valueOrNull = secondNode.valueOrNull;
+                secondMergeList.add(updateNode);
+            }
+
+            firstMergeList.clear();
+            mergeLists.remove(firstMergeList);
+
+            return;
+        }
+
+        for (Node updateNode : secondMergeList) {
+            updateNode.valueOrNull = firstNode.valueOrNull;
+            firstMergeList.add(updateNode);
+        }
+
+        secondMergeList.clear();
+        mergeLists.remove(secondMergeList);
+    }
+
+    private void unmerge(Node[][] nodes, int row, int col, ArrayList<HashSet<Node>> mergeLists) {
+        Node targetNode = nodes[row][col];
+
+        boolean bMergeList = hasMergeList(targetNode, mergeLists);
+        if (bMergeList == false) {
+            return;
+        }
+
+        HashSet<Node> mergeList = getMergeList(targetNode, mergeLists);
+        String lastValue = targetNode.valueOrNull;
+        for (Node unmergeNode : mergeList) {
+            unmergeNode.valueOrNull = null;
+        }
+
+        nodes[row][col].valueOrNull = lastValue;
+
+        mergeList.clear();
+        mergeLists.remove(mergeList);
+    }
+
+    private String print(Node[][] nodes, int row, int col) {
+        return nodes[row][col].valueOrNull == null ? "EMPTY" : nodes[row][col].valueOrNull;
+    }
+
+    private boolean hasMergeList(Node node, ArrayList<HashSet<Node>> mergeLists) {
+        for (HashSet<Node> mergeList : mergeLists) {
+            if (mergeList.contains(node) == true) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private HashSet<Node> getMergeList(Node node, ArrayList<HashSet<Node>> mergeLists) {
+        for (HashSet<Node> mergeList : mergeLists) {
+            if (mergeList.contains(node) == true) {
+                return mergeList;
+            }
+        }
+
+        HashSet<Node> newMergeList = new HashSet<>();
+        newMergeList.add(node);
+
+        mergeLists.add(newMergeList);
+
+        return newMergeList;
+    }
+}
