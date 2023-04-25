@@ -1,0 +1,90 @@
+import java.util.*;
+
+class Solution {
+    private static class FileString {
+        private String file;
+        private String head;
+        private String number;
+        
+        public FileString(String file) {
+            this.file = file;
+            
+            StringBuilder sb = new StringBuilder();
+            int fileIndex = 0;
+            char currentChar;
+            while (true) {
+                currentChar = file.charAt(fileIndex);
+                
+                if (currentChar >= '0' && currentChar <= '9') {
+                    break;
+                }
+                
+                sb.append(currentChar);
+                ++fileIndex;
+            }
+            this.head = sb.toString();
+            
+            sb = new StringBuilder();
+            while (fileIndex < file.length()) {
+                currentChar = file.charAt(fileIndex);
+                
+                if (currentChar < '0' || currentChar > '9') {
+                    break;
+                }
+
+                sb.append(currentChar);
+                ++fileIndex;
+            }
+            
+            this.number = sb.toString();
+        }
+        
+//         public int compareTo(FileString other) {
+//             String lowerHead = this.head.toLowerCase();
+//             String lowerOtherHead = other.head.toLowerCase();
+            
+//             int result = lowerHead.compareTo(lowerOtherHead);
+//             if (result == 0) {
+//                 int number = Integer.valueOf(this.number);
+//                 int otherNumber = Integer.valueOf(other.number);
+                
+//                 return number - otherNumber;
+//             }
+            
+//             return result;
+//         }
+    }
+    
+    public String[] solution(String[] files) {
+        FileString[] fileStrings = new FileString[files.length];
+        for (int index = 0; index < files.length; ++index) {
+            fileStrings[index] = new FileString(files[index]);
+            //System.out.format("file: %s, head: %s, number: %s\n", fileStrings[index].file, fileStrings[index].head, fileStrings[index].number);
+        }
+        
+        Arrays.sort(fileStrings, new Comparator<FileString>() {
+            @Override
+            public int compare(FileString first, FileString second) {
+                String lowerHead = first.head.toLowerCase();
+                String lowerOtherHead = second.head.toLowerCase();
+                
+                int result = lowerHead.compareTo(lowerOtherHead);
+                if (result == 0) {
+                    int number = Integer.valueOf(first.number);
+                    int otherNumber = Integer.valueOf(second.number);
+                    
+                    return number - otherNumber;
+                }
+            
+                return result;
+            }
+        });
+        
+        String[] answer = new String[files.length];
+        for (int index = 0; index < files.length; ++index) {
+            answer[index] = fileStrings[index].file;
+        }
+        
+        return answer;
+    }
+}
