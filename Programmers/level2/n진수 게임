@@ -1,0 +1,34 @@
+class Solution {
+    public String solution(int n, int t, int m, int p) {
+        int radix = n;
+        int participant = m;
+        int turn = p;
+        
+        int number = 0;
+        int targetLength = t;
+        
+        int startIndex = 0;
+        int targetIndex = startIndex + (turn - 1);
+        
+        StringBuilder sb = new StringBuilder();        
+        StringBuilder answerSb = new StringBuilder();
+        while (targetLength > 0) {
+            String transformedNumber = Integer.toString(number, radix);
+            sb.append(transformedNumber);
+            
+            targetIndex = startIndex + (turn - 1);
+            if (targetIndex < sb.length()) {
+                answerSb.append(sb.charAt(targetIndex));
+                --targetLength;
+                
+                //System.out.format("startIndex: %d, targetIndex: %d, append: %c\n", startIndex, targetIndex, sb.charAt(targetIndex));
+                
+                startIndex += participant;
+            }
+            
+            ++number;
+        }
+        
+        return answerSb.toString().toUpperCase();
+    }
+}
