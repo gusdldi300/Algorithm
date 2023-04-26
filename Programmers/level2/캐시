@@ -1,0 +1,33 @@
+import java.util.*;
+
+class Solution {
+    private static int CACHE_HIT_TIME = 1;
+    private static int CACHE_MISS_TIME = 5;
+    
+    public int solution(int cacheSize, String[] cities) {
+        if (cacheSize == 0) {
+            return cities.length * CACHE_MISS_TIME;
+        }
+        
+        LinkedList<String> cacheList = new LinkedList<>();
+        int totalTime = 0;
+        for (int index = 0; index < cities.length; ++index) {
+            String currentCity = cities[index].toLowerCase();
+            if (cacheList.contains(currentCity)) {
+                totalTime += CACHE_HIT_TIME;
+                
+                cacheList.remove(currentCity);
+            } else {
+                if (cacheList.size() == cacheSize) {
+                    cacheList.removeFirst();
+                }
+                
+                totalTime += CACHE_MISS_TIME;
+            }
+            
+            cacheList.addLast(currentCity);
+        }
+        
+        return totalTime;
+    }
+}
