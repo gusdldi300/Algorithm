@@ -1,0 +1,95 @@
+class Solution {
+    public String solution(String m, String[] musicinfos) {
+        String equalTitleOrNull = null;
+        int equalDiff = Integer.MAX_VALUE;
+        
+        for (int index = 0; index < musicinfos.length; ++index) {
+            String[] inputs = musicinfos[index].split(",");
+            
+            int startTime = convertToMin(inputs[0]);
+            int endTime = convertToMin(inputs[1]);
+            
+            String title = inputs[2];
+            int currentDiff = endTime - startTime;
+            String fullMusicSheet = getFullMusicSheet(currentDiff, inputs[3]);
+            //System.out.format("currentDiff: %d, full sheet: %s\n", currentDiff, fullMusicSheet);
+            
+            boolean bFound = isEqualMusicSheet(m, fullMusicSheet);
+            if (bFound == true) {
+                if (equalTitleOrNull != null && equalDiff >= currentDiff) {
+                    continue;
+                }
+                
+                equalTitleOrNull = title;
+                equalDiff = currentDiff;
+            }
+        }
+        
+        if (equalTitleOrNull == null) {
+            return "(None)";
+        }
+        
+        return equalTitleOrNull;
+    }
+    
+    private int convertToMin(String time) {
+        String[] inputs = time.split(":");
+        int hourMin = Integer.valueOf(inputs[0]) * 60;
+        int min = Integer.valueOf(inputs[1]);
+        
+        return hourMin + min;
+    }
+    
+    private boolean isEqualMusicSheet(String melody, String fullSheet) {
+        boolean bEqual = false;
+        int sheetIndex = 0;
+        while ((fullSheet.length() - sheetIndex) >= melody.length()) {
+            bEqual = true;
+            for (int melodyIndex = 0; melodyIndex < melody.length(); ++melodyIndex) {
+                if (melody.charAt(melodyIndex) != fullSheet.charAt(sheetIndex + melodyIndex)) {
+                    bEqual = false;
+                    
+                    break;
+                }
+            }
+            
+            if (bEqual == true) {
+                if (melody.charAt(melody.length() - 1) != '#') {
+                    int currentSheetLength = sheetIndex + melody.length();
+                    if ((currentSheetLength < fullSheet.length()) && (fullSheet.charAt(currentSheetLength) == '#')) {
+                        bEqual = false;
+                        ++sheetIndex;
+                        
+                        continue;
+                    }
+                }
+                
+                break;
+            }
+            
+            ++sheetIndex;
+        }
+        
+        return bEqual;
+    }
+    
+    private String getFullMusicSheet(int timeDiff, String musicSheet) {
+        StringBuilder sb = new StringBuilder();
+        int sheetIndex = 0;
+        while (timeDiff > 0) {
+            sheetIndex %= musicSheet.length();
+            sb.append(musicSheet.charAt(sheetIndex));
+            
+            int nextIndex = sheetIndex + 1;
+            if (nextIndex < musicSheet.length() && musicSheet.charAt(nextIndex) == '#') {
+                sb.append(musicSheet.charAt(nextIndex));
+                ++sheetIndex;
+            }
+            
+            ++sheetIndex;
+            --timeDiff;
+        }
+        
+        return sb.toString();
+    }
+}
