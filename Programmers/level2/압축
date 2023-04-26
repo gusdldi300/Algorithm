@@ -1,0 +1,43 @@
+import java.util.*;
+
+class Solution {
+    private String[] alphabets = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+    
+    public int[] solution(String msg) {
+        HashMap<String, Integer> stringIndexes = new HashMap<>();
+        
+        int stringIndex = 1;
+        for (int alphaIndex = 0; alphaIndex < alphabets.length; ++alphaIndex) {
+            stringIndexes.put(alphabets[alphaIndex], stringIndex++);
+        }
+        
+        ArrayList<Integer> answerList = new ArrayList<>();
+        int msgIndex = 0;
+        while (msgIndex < msg.length()) {
+            StringBuilder sb = new StringBuilder();
+            int outputIndex = -1;
+            for (msgIndex = msgIndex; msgIndex < msg.length(); ++msgIndex) {
+                sb.append(msg.charAt(msgIndex));
+                
+                String checkString = sb.toString();
+                if (stringIndexes.containsKey(checkString) == false) {
+                    //System.out.format("checkString: %s, stringIndex: %d\n", checkString, stringIndex);
+                    stringIndexes.put(checkString, stringIndex++);
+                    
+                    break;
+                }
+                
+                outputIndex = stringIndexes.get(checkString);
+            }
+            
+            answerList.add(outputIndex);
+        }
+        
+        int[] answer = new int[answerList.size()];
+        for (int index = 0; index < answerList.size(); ++index) {
+            answer[index] = answerList.get(index);
+        }
+        
+        return answer;
+    }
+}
