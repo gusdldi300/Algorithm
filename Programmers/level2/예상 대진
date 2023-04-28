@@ -1,0 +1,26 @@
+class Solution {
+    public int solution(int n, int a, int b) {
+        int answer = 0;
+        
+        while (a != b) {
+
+            a = getNewNumber(a);
+            b = getNewNumber(b);
+            
+            ++answer;
+        }
+        
+        
+        return answer;
+    }
+    
+    private int getNewNumber(int number) {
+        if ((number % 2) == 0) {
+            number /= 2;
+        } else {
+            number = (number + 1) / 2;
+        }
+        
+        return number;
+    }
+}
