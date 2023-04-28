@@ -1,0 +1,59 @@
+import java.util.*;
+
+public class Solution {
+    public int solution(int n) {
+        int answer = 0;
+        
+        /*
+        outer:
+        while (distanceQueue.isEmpty() == false) {
+            
+            int queueSize = distanceQueue.size();
+            for (int index = 0; index < queueSize; ++index) {
+                int current = distanceQueue.remove();
+                //System.out.format("current: %d, count: %d\n", current, answer);
+                
+                if (current == n) {
+                    break outer;
+                }
+                
+                int addDistance = current;
+                while (addDistance != 0 && addDistance <= n) {
+                    addDistance *= 2;                    
+                    
+                    int jumpedDistance = addDistance + 1;
+                    if (cache.contains(jumpedDistance) == false) {
+                        distanceQueue.add(jumpedDistance);
+                        cache.add(jumpedDistance);
+                    }
+                }
+                
+                addDistance = current + 1;
+                while (addDistance != 0 && addDistance <= n) {
+                    if (cache.contains(addDistance) == false) {
+                        distanceQueue.add(addDistance);
+                        cache.add(addDistance);
+                    }
+                    
+                    addDistance *= 2;                    
+                }
+            }
+            
+            answer++;
+        }
+        */
+        
+        int target = n;
+        while (target > 0) {
+            if ((target % 2) != 0) {
+                target -= 1;
+                
+                ++answer;
+            } 
+            
+            target /= 2;
+        }
+
+        return answer;
+    }
+}
