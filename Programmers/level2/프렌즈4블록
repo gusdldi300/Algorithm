@@ -1,0 +1,124 @@
+import java.util.*;
+
+class Solution {
+    private static class Position {
+        private int row;
+        private int col;
+        
+        public Position(int row, int col) {
+            this.row = row;
+            this.col = col;
+        }
+    }
+    
+    public int solution(int m, int n, String[] board) {
+        char[][] friendsBoard = new char[board.length][board[0].length()];
+        for (int i = 0; i < board.length; ++i) {
+            String rowString = board[i];
+            for (int j = 0; j < rowString.length(); ++j) {
+                friendsBoard[i][j] = rowString.charAt(j);
+            }
+        }
+        
+        int answer = 0;
+        while (true) {
+            Queue<Position> disappearBlocks = new LinkedList<>();
+            for (int i = 0; i < friendsBoard.length; ++i) {
+                for (int j = 0; j < friendsBoard[0].length; ++j) {
+                    if (isDisappearBlock(i, j, friendsBoard)) {
+                        disappearBlocks.add(new Position(i, j));
+                    }
+                }
+            }
+            
+            if (disappearBlocks.isEmpty()) {
+                break;
+            }
+            
+            while (disappearBlocks.isEmpty() == false) {
+                Position position = disappearBlocks.remove();
+                answer += removeBlocksAndCount(position, friendsBoard);
+                //printBoard(friendsBoard, answer);
+            }
+            
+            updateBoard(friendsBoard);
+            //System.out.format("Updated: \n");
+            //printBoard(friendsBoard, answer);
+        }
+        
+        return answer;
+    }
+    
+    private void printBoard(char[][] friendsBoard, int answer) {
+        System.out.format("answer: %d\n", answer);                
+        
+        for (int i = 0; i < friendsBoard.length; ++i) {
+            for (int j = 0; j < friendsBoard[0].length; ++j) {
+                System.out.format("%c ", friendsBoard[i][j]);                
+            }
+            System.out.format("\n");                
+        }
+        
+        System.out.format("\n");                
+    }
+    
+    private void updateBoard(char[][] friendsBoard) {
+        for (int i = friendsBoard.length - 2; i >= 0; --i) {
+            for (int j = 0; j < friendsBoard[0].length; ++j) {
+                if (friendsBoard[i][j] != '.') {
+                    int row = i;
+                    int col = j;
+                    
+                    while (row < (friendsBoard.length - 1)) {
+                        if (friendsBoard[row + 1][col] != '.') {
+                            break;
+                        }
+                        
+                        friendsBoard[row + 1][col] = friendsBoard[row][col];
+                        friendsBoard[row][col] = '.';
+                        
+                        ++row;
+                    }
+                }
+            }
+        }
+    }
+    
+    private int removeBlocksAndCount(Position position, char[][] friendsBoard) {
+        int removeCount = 0;
+        
+        for (int i = position.row; i < (position.row + 2); ++i) {
+            for (int j = position.col; j < (position.col + 2); ++j) {
+                if (friendsBoard[i][j] != '.') {
+                    removeCount++;
+                }
+                
+                friendsBoard[i][j] = '.';
+            }
+        }
+        
+        return removeCount;
+    }
+    
+    private boolean isDisappearBlock(int row, int col, char[][] friendsBoard) {
+        char currentFriend = friendsBoard[row][col];
+        if (currentFriend == '.') {
+            return false;
+        }
+        
+        if (row >= (friendsBoard.length - 1) || col >= (friendsBoard[0].length - 1)) {
+            return false;
+        }
+        
+        boolean bDisappearBlock = true;
+        for (int i = row; i < (row + 2); ++i) {
+            for (int j = col; j < (col + 2); ++j) {
+                if (friendsBoard[i][j] != currentFriend) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+}
