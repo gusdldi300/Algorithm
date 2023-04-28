@@ -1,0 +1,79 @@
+import java.util.*;
+
+class Solution {
+    private final int DEFAULT_NUMBER = 65536;
+    
+    private void printSources(HashMap<String, Integer> sourceCounts) {
+        for (String source : sourceCounts.keySet()) {
+            System.out.format("source: %s, count: %d\n", source, sourceCounts.get(source));
+        }
+        System.out.format("\n");
+    }
+    
+    public int solution(String str1, String str2) {
+        HashMap<String, Integer> str1SourceCounts = new HashMap<>();
+        getSources(str1, str1SourceCounts);
+        //printSources(str1SourceCounts);
+        
+        HashMap<String, Integer> str2SourceCounts = new HashMap<>();
+        getSources(str2, str2SourceCounts);
+        //printSources(str2SourceCounts);
+        
+        int intersectionSize = 0;
+        for (String source1 : str1SourceCounts.keySet()) {
+            if (str2SourceCounts.containsKey(source1)) {
+                intersectionSize += Math.min(str1SourceCounts.get(source1), str2SourceCounts.get(source1));
+            }
+        }
+        
+        int unionSize = 0;
+        for (String source1 : str1SourceCounts.keySet()) {
+            if (str2SourceCounts.containsKey(source1)) {
+                unionSize += Math.max(str1SourceCounts.get(source1), str2SourceCounts.get(source1));
+            } else {
+                unionSize += str1SourceCounts.get(source1);            
+            }
+        }
+        
+        for (String source2 : str2SourceCounts.keySet()) {
+            if (str1SourceCounts.containsKey(source2) == false) {
+                unionSize += str2SourceCounts.get(source2);           
+            }
+        }
+        
+        if (unionSize == 0) {
+            return DEFAULT_NUMBER;
+        } 
+        
+        double answer = (double) intersectionSize / (double) unionSize;
+        return (int) (answer * (double) DEFAULT_NUMBER);
+    }
+    
+    private void getSources(String string, HashMap<String, Integer> sourceCounts) {
+        String stringToLower = string.toLowerCase();
+        
+        for (int index = 0; index < stringToLower.length() - 1; ++index) {
+            StringBuilder sb = new StringBuilder();
+            char first = stringToLower.charAt(index);
+            if (first < 'a' || first > 'z') {
+                continue;
+            }
+
+            char second = stringToLower.charAt(index + 1);
+            if (second < 'a' || second > 'z') {
+                continue;
+            }
+            
+            sb.append(first);
+            sb.append(second);
+            
+            String source = sb.toString();
+            int count = 1;
+            if (sourceCounts.containsKey(source)) {
+                count += sourceCounts.get(source);
+            }
+
+            sourceCounts.put(source, count);
+        }
+    }
+}
