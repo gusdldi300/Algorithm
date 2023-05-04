@@ -30,7 +30,7 @@ class Solution {
     public static void main(String[] args) {
         Solution solution = new Solution();
 
-        String answer = solution.solution(3, 4, 2, 3, 3, 1, 1);
+        String answer = solution.solution(3, 4, 2, 3, 3, 1, 5);
         System.out.println(answer);
         answer = solution.solution(2, 2, 1, 1, 2, 2, 2);
         System.out.println(answer);
@@ -78,14 +78,14 @@ class Solution {
         return false;
     }
 
-    private void getInstructionsRecursive(int row, int col, int count, char[] instructions, boolean[][] visited) {
-        if (count == this.distance && (row == this.exitRow && col == this.exitCol)) {
+    private void getInstructionsRecursive(int row, int col, int moveCount, char[] instructions, boolean[][] visited) {
+        if (moveCount == this.distance && (row == this.exitRow && col == this.exitCol)) {
             this.answer = new String(instructions);
 
             return;
         }
 
-        if (count >= this.distance) {
+        if (moveCount >= this.distance) {
             return;
         }
 
@@ -97,9 +97,9 @@ class Solution {
                 continue;
             }
 
-            if ((Math.abs(this.exitRow - newRow) + Math.abs(this.exitCol - newCol)) <= (this.distance - count)) {
-                instructions[count] = this.instructions[dirIndex];
-                getInstructionsRecursive(newRow, newCol, count + 1, instructions, visited);
+            if ((Math.abs(this.exitRow - newRow) + Math.abs(this.exitCol - newCol)) <= (this.distance - (moveCount + 1))) {
+                instructions[moveCount] = this.instructions[dirIndex];
+                getInstructionsRecursive(newRow, newCol, moveCount + 1, instructions, visited);
 
                 return;
             }
