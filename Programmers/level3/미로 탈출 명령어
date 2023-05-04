@@ -1,0 +1,227 @@
+import java.util.*;
+
+class Solution {
+    private static class Position {
+        private int row;
+        private int col;
+
+        public Position(int row, int col) {
+            this.row = row;
+            this.col = col;
+        }
+    }
+
+    private final String FAIL_INSTRUCTION = "impossible";
+    private int[] dirRows = {1, 0, 0, -1};
+    private int[] dirCols = {0, -1, 1, 0};
+    private char[] instructions = {'d', 'l', 'r', 'u'};
+
+    private int rowSize;
+    private int colSize;
+
+    private int distance;
+
+    private int startRow;
+    private int startCol;
+    private int exitRow;
+    private int exitCol;
+    private String answer;
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+
+        String answer = solution.solution(3, 4, 2, 3, 3, 1, 1);
+        System.out.println(answer);
+        answer = solution.solution(2, 2, 1, 1, 2, 2, 2);
+        System.out.println(answer);
+        answer = solution.solution(3, 3, 1, 2, 3, 3, 4);
+        System.out.println(answer);
+    }
+
+    public String solution(int n, int m, int x, int y, int r, int c, int k) {
+        boolean[][] visited = new boolean[n][m];
+
+        this.rowSize = n;
+        this.colSize = m;
+
+        this.startRow = x - 1;
+        this.startCol = y - 1;
+
+        this.exitRow = r - 1;
+        this.exitCol = c - 1;
+        this.distance = k;
+
+        if (isAvailable() == false) {
+            return FAIL_INSTRUCTION;
+        }
+
+        getInstructionsRecursive(this.startRow, this.startCol, 0, new char[k], new boolean[n][m]);
+
+        return this.answer;
+    }
+
+    private boolean isAvailable() {
+        int shortestCount = Math.abs(this.exitRow - this.startRow) + Math.abs(this.exitCol - this.startCol);
+        if (this.distance < shortestCount) {
+            return false;
+        }
+
+        shortestCount %= 2;
+        if (shortestCount != 0 && (this.distance % 2) != 0) {
+            return true;
+        }
+
+        if (shortestCount == 0 && (this.distance % 2) == 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private void getInstructionsRecursive(int row, int col, int count, char[] instructions, boolean[][] visited) {
+        if (count == this.distance && (row == this.exitRow && col == this.exitCol)) {
+            this.answer = new String(instructions);
+
+            return;
+        }
+
+        if (count >= this.distance) {
+            return;
+        }
+
+        for (int dirIndex = 0; dirIndex < dirRows.length; ++dirIndex) {
+            int newRow = row + dirRows[dirIndex];
+            int newCol = col + dirCols[dirIndex];
+
+            if (newRow < 0 || newCol < 0 || newRow >= visited.length || newCol >= visited[0].length) {
+                continue;
+            }
+
+            if ((Math.abs(this.exitRow - newRow) + Math.abs(this.exitCol - newCol)) <= (this.distance - count)) {
+                instructions[count] = this.instructions[dirIndex];
+                getInstructionsRecursive(newRow, newCol, count + 1, instructions, visited);
+
+                return;
+            }
+        }
+    }
+
+    private int getShortestCountBfs() {
+        Position start = new Position(this. startRow, this.startCol);
+        Position exit = new Position(this.exitRow, this.exitCol);
+
+        boolean[][] visited = new boolean[this.rowSize][this.colSize];
+        Queue<Position> positionQueue = new LinkedList<>();
+        positionQueue.add(start);
+        visited[start.row][start.col] = true;
+
+        int count = 0;
+        while (positionQueue.isEmpty() == false) {
+            int queueSize = positionQueue.size();
+            for (int index = 0; index < queueSize; ++index) {
+                Position position = positionQueue.remove();
+
+                if ((position.row == exit.row) && (position.col == exit.col)) {
+                    return count;
+                }
+
+                for (int dirIndex = 0; dirIndex < dirRows.length; ++dirIndex) {
+                    int newRow = position.row + this.dirRows[dirIndex];
+                    int newCol = position.col + this.dirCols[dirIndex];
+
+                    if (newRow < 0 || newCol < 0 || newRow >= this.rowSize || newCol >= this.colSize) {
+                        continue;
+                    }
+
+                    if (visited[newRow][newCol] == true) {
+                        continue;
+                    }
+
+                    Position newPosition = new Position(newRow, newCol);
+                    positionQueue.add(newPosition);
+
+                    visited[newRow][newCol] = true;
+                }
+            }
+
+            count++;
+        }
+
+        return -1;
+    }
+
+    /*
+    public String solution(int n, int m, int x, int y, int r, int c, int k) {
+        Position[][] maze = new Position[n][m];
+
+        Position start = new Position(x - 1, y - 1);
+        Position exit = new Position(r - 1, c - 1);
+
+        int rowSize = n;
+        int colSize = m;
+        int distance = k;
+
+        Queue<Position> positionQueue = new LinkedList<>();
+        positionQueue.add(start);
+
+        String answerOrNull = null;
+        while (positionQueue.isEmpty() == false) {
+            Position position = positionQueue.remove();
+
+            if ((position.count == distance) && (position.row == exit.row && position.col == exit.col)) {
+                if (answerOrNull != null) {
+                    int compareResult = answerOrNull.compareTo(position.instructions);
+                    if (compareResult <= 0) {
+                        continue;
+                    }
+                }
+
+                answerOrNull = position.instructions;
+
+                continue;
+            }
+
+            for (int dirIndex = 0; dirIndex < dirRows.length; ++dirIndex) {
+                if (position.count >= distance) {
+                    break;
+                }
+
+                int newRow = position.row + this.dirRows[dirIndex];
+                int newCol = position.col + this.dirCols[dirIndex];
+                if (newRow < 0 || newCol < 0 || newRow >= rowSize || newCol >= colSize) {
+                    continue;
+                }
+
+                if (maze[newRow][newCol] != null && maze[newRow][newCol].count == (position.count + 1)) {
+                    int compareResult = compareInstructions(maze[newRow][newCol].instructions, position.instructions, this.instructions[dirIndex]);
+                    if (compareResult < 0) {
+                        continue;
+                    }
+                }
+
+                StringBuilder sb = new StringBuilder();
+                sb.append(position.instructions);
+                sb.append(this.instructions[dirIndex]);
+
+                Position newPosition = new Position(newRow, newCol, position.count + 1, sb.toString());
+                maze[newRow][newCol] = newPosition;
+
+                positionQueue.add(newPosition);
+            }
+        }
+
+        return (answerOrNull == null) ? FAIL_INSTRUCTION : answerOrNull;
+    }
+
+    private int compareInstructions(String first, String second, char newInstruction) {
+        for (int index = 0; index < first.length() - 1; ++index) {
+            int result = first.charAt(index) - second.charAt(index);
+            if (result != 0) {
+                return result;
+            }
+        }
+
+        return first.charAt(first.length() - 1) - newInstruction;
+    }
+    */
+}
