@@ -1,0 +1,85 @@
+class Solution {
+    private int answer = 0;
+    
+    private int[] rowMoves = {-1, -1, -1, 0, 1, 1, 1, 0};
+    private int[] colMoves = {-1, 0, 1, 1, 1, 0, -1, -1};
+    
+    public int solution(int n) {
+        boolean[][] visited = new boolean[n][n];
+        
+        for (int j = 0; j < visited[0].length; ++j) {
+            boolean[][] copiedBoard = copyBoard(visited);
+            visitQueenMoves(0, j, copiedBoard);
+            
+            //System.out.format("row: 0, col: %d\n", j);
+            //printBoard(copiedBoard);
+            
+            countQueenArrangementRecursive(1, j, 1, copiedBoard);
+        }
+        
+        return this.answer;
+    }
+    
+    private void countQueenArrangementRecursive(int row, int col, int queenCount, boolean[][] visited) {
+        if (queenCount == visited.length) {
+            //System.out.format("Found\n");
+            this.answer++;
+            
+            return;
+        }
+        
+        for (int j = 0; j < visited[0].length; ++j) {
+            if (visited[row][j] == true) {
+                continue;
+            }
+            
+            boolean[][] copiedBoard = copyBoard(visited);
+            visitQueenMoves(row, j, copiedBoard);
+            
+            //System.out.format("count: %d, row: %d, col: %d\n", queenCount, row, j);
+            //printBoard(copiedBoard);
+            
+            countQueenArrangementRecursive(row + 1, j, queenCount + 1, copiedBoard);
+        }
+    }
+    
+    private void printBoard(boolean[][] board) {
+        for (int i = 0; i < board.length; ++i) {
+            for (int j = 0; j < board[0].length; ++j) {
+                System.out.format("%s ", board[i][j]);
+            }
+            System.out.println();
+        }
+        
+        System.out.println();
+    }
+    
+    private boolean[][] copyBoard(boolean[][] board) {
+        boolean[][] newBoard = new boolean[board.length][board[0].length];
+        for (int i = 0; i < board.length; ++i) {
+            for (int j = 0; j < board[0].length; ++j) {
+                newBoard[i][j] = board[i][j];
+            }
+        }
+        
+        return newBoard;
+    }
+    
+    private void visitQueenMoves(int row, int col, boolean[][] visited) {
+        for (int moveIndex = 0; moveIndex < this.rowMoves.length; ++moveIndex) {
+            int newRow = row;
+            int newCol = col;
+            
+            while (true) {
+                if (newRow < 0 || newCol < 0 || newRow >= visited.length || newCol >= visited[0].length) {
+                    break;
+                }
+                
+                visited[newRow][newCol] = true;
+                
+                newRow += this.rowMoves[moveIndex];
+newCol += this.colMoves[moveIndex];
+            }
+        }
+    }
+}
