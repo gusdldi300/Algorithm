@@ -1,0 +1,32 @@
+class Solution {
+    public int solution(int[] arr) {
+        int biggestNumber = -1;
+        for (int index = 0; index < arr.length; ++index) {
+            if (biggestNumber < arr[index]) {
+                biggestNumber = arr[index];
+            }
+        }
+        
+        int lcm = biggestNumber;
+        int count = 2;
+        while (true) {
+            boolean bFound = true;
+            for (int index = 0; index < arr.length; ++index) {
+                if ((lcm % arr[index]) != 0) {
+                    bFound = false;
+                    
+                    break;
+                }
+            }
+            
+            if (bFound == true) {
+                break;
+            }
+
+            lcm = biggestNumber * count;
+            ++count;
+        }
+        
+        return lcm;
+    }
+}
