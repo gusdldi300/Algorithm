@@ -1,0 +1,41 @@
+import java.util.*;
+
+class Solution {
+    public String solution(String s) {
+        StringBuilder sb = new StringBuilder();
+        char currentChar = convertToUpper(s.charAt(0));
+        sb.append(currentChar);
+        
+        char lastChar = currentChar;
+        for (int index = 1; index < s.length(); ++index) {
+            currentChar = s.charAt(index);
+            
+            if (lastChar == ' ' && currentChar != ' ') {
+                currentChar = convertToUpper(currentChar);
+            } else {
+                currentChar = convertToLower(currentChar);
+            }
+            
+            sb.append(currentChar);
+            lastChar = currentChar;
+        }
+        
+        return sb.toString();
+    }
+    
+    private char convertToLower(char letter) {
+        if (letter >= 'A' && letter <= 'Z') {
+            return (char) (letter + 32); 
+        }
+        
+        return letter;
+    }
+    
+    private char convertToUpper(char letter) {
+        if (letter >= 'a' && letter <= 'z') {
+            return (char) (letter - 32); 
+        }
+        
+        return letter;
+    }
+}
