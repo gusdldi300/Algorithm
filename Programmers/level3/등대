@@ -1,0 +1,63 @@
+import java.util.*;
+
+class Solution {
+    private static class LightHouse {
+        private int id;
+        private boolean bLight;
+        private ArrayList<LightHouse> children = new ArrayList<>();
+        
+        public LightHouse(int id) {
+            this.bLight = false;
+            this.id = id;
+        }
+    }
+    
+    private int count;
+    
+    public int solution(int n, int[][] lighthouse) {
+        LightHouse[] lightHouses = new LightHouse[n + 1];
+        
+        for (int index = 1; index <= n; ++index) {
+            lightHouses[index] = new LightHouse(index);
+        }
+        
+        for (int index = 0; index < lighthouse.length; ++index) {
+            LightHouse first = lightHouses[lighthouse[index][0]];
+            LightHouse second = lightHouses[lighthouse[index][1]];
+            
+            first.children.add(second);
+            second.children.add(first);
+        }
+        
+        boolean[] visited = new boolean[n + 1];
+        getLeastLightCountRecursive(lightHouses[1], visited);
+        
+        return this.count;
+    }
+                              
+    private boolean getLeastLightCountRecursive(LightHouse current, boolean[] visited) {
+        visited[current.id] = true;
+        
+        boolean bTotalLight = false;
+        for (LightHouse child : current.children) {
+            if (visited[child.id] == true) {
+                continue;
+            }
+            
+            boolean bLight = getLeastLightCountRecursive(child, visited);
+            //System.out.format("turn: %d, %s\n", child.id, bLight);
+            if (bLight == false) {
+                bTotalLight = true;
+            }
+        }
+        
+        if (bTotalLight == true) {
+            ++this.count;
+            //System.out.format("light on: %d\n", current.id);
+            
+            return true;
+        }
+        
+        return false;
+    }
+}
