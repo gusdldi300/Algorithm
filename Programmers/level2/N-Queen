@@ -1,4 +1,4 @@
-class Solution {
+class eSolution {
     private int answer = 0;
     
     private int[] rowMoves = {-1, -1, -1, 0, 1, 1, 1, 0};
