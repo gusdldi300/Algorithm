@@ -169,12 +169,15 @@ static void getTotalBlockCountRecursive(unsigned int* outMinBlockCount, unsigned
 {
 	if (curBridgeCount == bridgeCount)
 	{
+		assert(islandCount > 2);
+		
 		bool* bVisited = new bool[islandCount];
 		for (unsigned int i = 0; i < islandCount; ++i)
 		{
 			bVisited[i] = false;
 		}
 		
+		bVisited[1] = true;
 		traverseVisitedIslandRecursive(islandsConnected, 1, bVisited);
 
 		unsigned int curBlockCount = 0;
