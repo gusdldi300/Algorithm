@@ -178,9 +178,6 @@ int main()
 		}
 
 		//PrintShark(shark);
-		sMap[shark->CurPosition.Row][shark->CurPosition.Col].ScentId = shark->Id;
-		sMap[shark->CurPosition.Row][shark->CurPosition.Col].Count = sTotalScentCount;
-
 		aliveSharks.push(shark);
 	}
 
@@ -196,6 +193,18 @@ int main()
 		}
 
 		unsigned int aliveSharksSize = aliveSharks.size();
+		for (unsigned int i = 0; i < aliveSharksSize; ++i)
+		{
+			Shark* shark = aliveSharks.front();
+			aliveSharks.pop();
+
+			sMap[shark->CurPosition.Row][shark->CurPosition.Col].ScentId = shark->Id;
+			sMap[shark->CurPosition.Row][shark->CurPosition.Col].Count = sTotalScentCount;
+
+			aliveSharks.push(shark);
+		}
+
+		aliveSharksSize = aliveSharks.size();
 		for (unsigned int i = 0; i < aliveSharksSize; ++i)
 		{
 			Shark* curShark = aliveSharks.front();
@@ -302,18 +311,6 @@ int main()
 					}
 				}
 			}
-		}
-
-		aliveSharksSize = aliveSharks.size();
-		for (unsigned int i = 0; i < aliveSharksSize; ++i)
-		{
-			Shark* shark = aliveSharks.front();
-			aliveSharks.pop();
-
-			sMap[shark->CurPosition.Row][shark->CurPosition.Col].ScentId = shark->Id;
-			sMap[shark->CurPosition.Row][shark->CurPosition.Col].Count = sTotalScentCount;
-
-			aliveSharks.push(shark);
 		}
 
 		++time;
