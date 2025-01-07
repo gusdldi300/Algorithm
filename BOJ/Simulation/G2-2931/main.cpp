@@ -258,7 +258,7 @@ int main()
 	if (GetDirection(row, col, &curDirection))
 	{
 		sMap[row][col].Gates[curDirection] = true;
-		
+
 		curVector.CurPosition.Row = row + sMoveDirections[curDirection].Row;
 		curVector.CurPosition.Col = col + sMoveDirections[curDirection].Col;
 		curVector.Direction = curDirection;
@@ -266,7 +266,7 @@ int main()
 	else
 	{
 		emptyPipe = FindPipeInAllDirections(row, col, &curVector);
-		
+
 		goto empty_pipe_found;
 	}
 
@@ -304,7 +304,7 @@ int main()
 			// intentional fallthrough
 		case Pipe::Plus:
 			nextDirection = lastDirection;
-			
+
 			break;
 		case Pipe::UpRight:
 			if (lastDirection == 2)
