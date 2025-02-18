@@ -1,47 +1,61 @@
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <cassert>
+#include <cstring>
 #include <iostream>
 
+#include <unordered_map>
 
-bool CanTransformeToTargetString(const std::string* curString, const std::string& targetString)
+#define STRING_LENGTH (64)
+
+void reverse_string(char* string, unsigned int length)
 {
-	if (curString->size() > targetString.size())
+	assert(string != nullptr);
+	assert(length < STRING_LENGTH);
+
+	char* start_p = string;
+	char* end_p = string + length - 1;
+
+	for (unsigned int i = 0; i < length / 2; ++i)
+	{
+		char temp = *start_p;
+		*start_p = *end_p;
+		*end_p = temp;
+
+		++start_p;
+		--end_p;
+	}
+}
+
+bool CanTransformToTargetStringRecursive(char* transformedString, unsigned stringLength, const std::string& targetString)
+{
+	if (stringLength > targetString.size())
 	{
 		return false;
 	}
 
-	if (curString->size() == targetString.size() && *curString == targetString)
+	if (stringLength == targetString.size() && strcmp(transformedString, targetString.c_str()) == 0)
 	{
 		return true;
 	}
 
-	std::string* stringAddA = new std::string(*curString + 'A');
-	if (CanTransformeToTargetString(stringAddA, targetString))
+	transformedString[stringLength] = 'A';
+	transformedString[stringLength + 1] = '\0';
+	if (CanTransformToTargetStringRecursive(transformedString, stringLength + 1, targetString))
 	{
 		return true;
 	}
 
-	delete stringAddA;
-
-	char* nextCharArray = new char[curString->size() + 2];
-	nextCharArray[0] = 'B';
-
-	unsigned int nextStringIndex = 1;
-	for (auto reverse_iter = curString->rbegin(); reverse_iter != curString->rend(); ++reverse_iter)
-	{
-		nextCharArray[nextStringIndex++] = *reverse_iter;
-	}
-
-	nextCharArray[nextStringIndex] = '\0';
-
-	std::string* stringAddBReversed = new std::string(nextCharArray);
-	delete[] nextCharArray;
-	if (CanTransformeToTargetString(stringAddBReversed, targetString))
+	transformedString[stringLength] = 'B';
+	transformedString[stringLength + 1] = '\0';
+	reverse_string(transformedString, stringLength + 1);
+	if (CanTransformToTargetStringRecursive(transformedString, stringLength + 1, targetString))
 	{
 		return true;
 	}
 
-	delete stringAddBReversed;
+	reverse_string(transformedString, stringLength + 1);
 
 	return false;
 }
@@ -54,7 +68,13 @@ int main()
 	std::cin >> sourceString >> targetString;
 
 	assert(sourceString.size() < targetString.size());
-	if (CanTransformeToTargetString(&sourceString, targetString))
+
+	char transformedString[STRING_LENGTH] = { 0, };
+	strcpy(transformedString, sourceString.c_str());
+
+	std::unordered_map<std::string, int> map;
+	
+	if (CanTransformToTargetStringRecursive(transformedString, sourceString.size(), targetString))
 	{
 		std::cout << 1;
 	}
