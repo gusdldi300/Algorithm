@@ -3,56 +3,75 @@
 #include <stack>
 #include <string>
 
+unsigned int GetDecompressedCountRecursive(std::string& compressedString, int& stringIndex, std::stack<char>& characterStack, unsigned int decompressedCount);
+
 int main()
 {
     std::string compressedString;
     std::cin >> compressedString;
 
+    unsigned int totalDecompressedCount = 0;
     unsigned int decompressedCount = 0;
-    bool bRepeat = false;
 
-    std::stack<char> charStack;
-    for (std::string::const_reverse_iterator constReverseIter = compressedString.rbegin(); constReverseIter != compressedString.rend(); ++constReverseIter)
+    int stringIndex = compressedString.size() - 1;
+    std::stack<char> characterStack;
+    while (stringIndex >= 0)
     {
-        char character = *constReverseIter;
-        
-        if (bRepeat)
-        {
-            unsigned int repeatCount = character - '0';
-            decompressedCount *= repeatCount;
+        char character = compressedString[stringIndex];
+        --stringIndex;
 
-            bRepeat = false;
+        characterStack.push(character);
+
+        if (character == ')')
+        {
+            totalDecompressedCount += GetDecompressedCountRecursive(compressedString, stringIndex, characterStack, 0);
+        }
+    }
+
+    totalDecompressedCount += (unsigned int)characterStack.size();
+    std::cout << totalDecompressedCount;
+
+    return 0;
+}
+
+unsigned int GetDecompressedCountRecursive(std::string& compressedString, int& stringIndex, std::stack<char>& characterStack, unsigned int decompressedCount)
+{
+    while (stringIndex >= 0)
+    {
+        char character = compressedString[stringIndex];
+        --stringIndex;
+        
+        characterStack.push(character);
+        
+        if (character == ')')
+        {
+            decompressedCount += GetDecompressedCountRecursive(compressedString, stringIndex, characterStack, decompressedCount);
 
             continue;
         }
 
-        if (character == '(') 
+        if (character == '(')
         {
-            while (charStack.empty() == false) 
-            {
-                char popCharacter = charStack.top();
-                charStack.pop();
+            characterStack.pop();
 
-                if (popCharacter == ')')
+            unsigned int repeatCount = compressedString[stringIndex] - '0';
+            --stringIndex;
+            
+            while (true)
+            {
+                char checkBracket = characterStack.top();
+                characterStack.pop();
+                if (checkBracket == ')') 
                 {
-                    bRepeat = true;
                     break;
                 }
 
-                ++decompressedCount;
+                decompressedCount++;
             }
-
-            if (bRepeat)
-            {
-                continue;
-            }
+            
+            return decompressedCount * repeatCount;
         }
-
-        charStack.push(character);
     }
 
-    decompressedCount += charStack.size();
-    std::cout << decompressedCount;
-
-    return 0;
+    return decompressedCount;
 }
