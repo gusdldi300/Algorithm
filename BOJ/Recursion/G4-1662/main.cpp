@@ -45,7 +45,7 @@ unsigned int GetDecompressedCountRecursive(std::string& compressedString, int& s
         
         if (character == ')')
         {
-            decompressedCount += GetDecompressedCountRecursive(compressedString, stringIndex, characterStack, decompressedCount);
+            decompressedCount += GetDecompressedCountRecursive(compressedString, stringIndex, characterStack, 0);
 
             continue;
         }
