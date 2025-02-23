@@ -2,55 +2,65 @@
 #include <string>
 #include <unordered_map>
 
+/*
+
+messi(1): Messi
+messi(2)​​: Messi Gimossi
+messi(3)​​​​​​: Messi Gimossi Messi
+messi(4): Messi Gimossi Messi Messi Gimossi
+messi(5): Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi
+
+messi(6): Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi
+
+messi(7): Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi
+
+messi(8): Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi
+          Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi
+
+messi(9): Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi
+          Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi
+
+messi(10):Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi
+          Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi
+          Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi Messi Gimossi Messi Messi Gimossi
+
+*/
+
+int GetScaledDownIndexOfShoutRecursive(int shoutSize, int prevShoutSize, int shoutIndex)
+{
+    if (shoutIndex < shoutSize)
+    {
+        return shoutIndex;
+    }
+
+    int scaledDownShoutIndex = GetScaledDownIndexOfShoutRecursive(shoutSize + prevShoutSize + 1, shoutSize, shoutIndex);
+    if (scaledDownShoutIndex < shoutSize)
+    {
+        return scaledDownShoutIndex;
+    }
+
+    return scaledDownShoutIndex - shoutSize - 1;
+}
+
+
 int main()
 {
-    unsigned int shoutIndex = 0;
+    int shoutIndex = 0;
     std::cin >> shoutIndex;
-    --shoutIndex;
+    shoutIndex--;
 
     std::string previousShout = "Messi";
     std::string currentShout = "Messi Gimossi";
 
-    char foundCharacter;
-    if (shoutIndex < previousShout.size())
-    {
-        foundCharacter = previousShout[shoutIndex];
-        goto character_found;
-    }
+    int scaledDownShoutIndex = GetScaledDownIndexOfShoutRecursive(currentShout.size(), previousShout.size(), shoutIndex);
 
-    if (shoutIndex < currentShout.size())
-    {
-        foundCharacter = currentShout[shoutIndex];
-        goto character_found;
-    }
-
-    while (true)
-    {
-        std::string nextShout;
-        nextShout.reserve(previousShout.size() + currentShout.size() + 1);
-        nextShout += previousShout;
-        nextShout += ' ';
-        nextShout += currentShout;
-
-        if (shoutIndex < nextShout.size())
-        {
-            foundCharacter = nextShout[shoutIndex];
-            break;
-        }
-
-        previousShout.swap(currentShout);
-        currentShout.swap(nextShout);
-    }
-
-character_found:
-
-    if (foundCharacter == ' ')
+    if (scaledDownShoutIndex == -1 || scaledDownShoutIndex == 5)
     {
         std::cout << "Messi Messi Gimossi";
     }
     else
     {
-        std::cout << foundCharacter;
+        std::cout << currentShout[scaledDownShoutIndex];
     }
 
     return 0;
