@@ -1,102 +1,38 @@
 
 #include <iostream>
 
-class Node
+#define MAX_NODE_COUNT (10000)
+
+void PrintBSTPostOrderedRecursive(const unsigned int startIndex, const unsigned int endIndex, const unsigned int* preorderedNodes)
 {
-public:
-    Node(unsigned int key);
-
-public:
-    unsigned int Key;
-    Node* LeftChild;
-    Node* RightChild;
-};
-
-Node::Node(unsigned int key)
-    : Key(key)
-    , LeftChild(nullptr)
-    , RightChild(nullptr)
-{
-}
-
-class BinaryTree
-{
-public:
-    BinaryTree(Node* rootNode);
-    void AddNode(Node* newNode);
-    void PrintAndDeleteTreePostOrdered();
-
-private:
-    Node* addNodeRecursive(Node* currentNodeOrNull, Node* newNode);
-    void printAndDeleteTreePostOrderedRecursive(Node* currentNodeOrNull);
-
-private:
-    Node* mRootNodeOrNull;
-};
-
-BinaryTree::BinaryTree(Node* rootNode)
-    : mRootNodeOrNull(rootNode)
-{
-}
-
-void BinaryTree::AddNode(Node* newNode)
-{
-    mRootNodeOrNull = addNodeRecursive(mRootNodeOrNull, newNode);
-}
-
-void BinaryTree::PrintAndDeleteTreePostOrdered()
-{
-    if (mRootNodeOrNull == nullptr)
+    if (startIndex > endIndex)
     {
         return;
     }
 
-    printAndDeleteTreePostOrderedRecursive(mRootNodeOrNull);
-}
-
-Node* BinaryTree::addNodeRecursive(Node* currentNodeOrNull, Node* newNode)
-{
-    if (currentNodeOrNull == nullptr)
+    unsigned int midNodeKey = preorderedNodes[startIndex];
+    unsigned int nextEndIndex = endIndex;
+    for (unsigned int i = startIndex + 1; i <= endIndex; ++i)
     {
-        return newNode;
+        if (midNodeKey < preorderedNodes[i])
+        {
+            nextEndIndex = i - 1;
+            break;
+        }
     }
 
-    if (newNode->Key < currentNodeOrNull->Key)
-    {
-        currentNodeOrNull->LeftChild = addNodeRecursive(currentNodeOrNull->LeftChild, newNode);
-    }
-    else
-    {
-        currentNodeOrNull->RightChild = addNodeRecursive(currentNodeOrNull->RightChild, newNode);
-    }
-
-    return currentNodeOrNull;
-}
-
-void BinaryTree::printAndDeleteTreePostOrderedRecursive(Node* currentNodeOrNull)
-{
-    if (currentNodeOrNull == nullptr)
-    {
-        return;
-    }
-
-    printAndDeleteTreePostOrderedRecursive(currentNodeOrNull->LeftChild);
-    printAndDeleteTreePostOrderedRecursive(currentNodeOrNull->RightChild);
-    std::cout << currentNodeOrNull->Key << std::endl;
-    delete currentNodeOrNull;
+    PrintBSTPostOrderedRecursive(startIndex + 1, nextEndIndex, preorderedNodes);
+    PrintBSTPostOrderedRecursive(nextEndIndex + 1, endIndex, preorderedNodes);
+    std::cout << midNodeKey << std::endl;
 }
 
 int main()
 {
-    unsigned int newKey = 0;
-    std::cin >> newKey;
-    if (std::cin.eof())
-    {
-        return 0;
-    }
+    unsigned int preorderedNodes[MAX_NODE_COUNT];
 
-    Node* rootNode = new Node(newKey);
-    BinaryTree binaryTree(rootNode);
+    unsigned int newKey = 0;
+    unsigned int nodesIndex = 0;
+
     while (true)
     {
         std::cin >> newKey;
@@ -105,11 +41,11 @@ int main()
             break;
         }
 
-        Node* newNode = new Node(newKey);
-        binaryTree.AddNode(newNode);
+        preorderedNodes[nodesIndex++] = newKey;
     }
 
-    binaryTree.PrintAndDeleteTreePostOrdered();
-    
+    PrintBSTPostOrderedRecursive(0, nodesIndex - 1, preorderedNodes);
+
     return 0;
 }
+
