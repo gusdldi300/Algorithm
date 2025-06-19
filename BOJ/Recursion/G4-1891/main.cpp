@@ -14,9 +14,8 @@ void TransformFragmentNumberToPositionRecursive(Position& startPosition, Positio
 {
     if (fragmentNumberDigits == fragmentNumberIndex)
     {
-        // Move position
-        outTransformedPosition->x = startPosition.x + movePosition.x;
-        outTransformedPosition->y = startPosition.y + movePosition.y;
+        outTransformedPosition->x = startPosition.x;
+        outTransformedPosition->y = startPosition.y;
 
         return;
     }
@@ -112,14 +111,17 @@ int main()
     std::cin >> movePosition.x >> movePosition.y;
     movePosition.y = -movePosition.y;
 
-    long long maxCoordinate = pow(2.0, fragmentNumberDigits) - 1;
+    //long long maxCoordinate = pow(2.0, fragmentNumberDigits) - 1;
+    long long maxCoordinate = (1LL << fragmentNumberDigits) - 1;
+    
     Position startPosition = { 0, 0 };
     Position endPosition = { maxCoordinate, maxCoordinate };
 
     Position transformedPosition = { 0, 0 };
     TransformFragmentNumberToPositionRecursive(startPosition, endPosition, movePosition, 0, fragmentNumberDigits, fragmentNumber, &transformedPosition);
 
-    // Todo: 예외 처리
+    transformedPosition.x += movePosition.x;
+    transformedPosition.y += movePosition.y;
     if (transformedPosition.x < 0 || transformedPosition.x > maxCoordinate || transformedPosition.y < 0 || transformedPosition.y > maxCoordinate)
     {
         std::cout << -1;
@@ -136,6 +138,7 @@ int main()
     std::string transformedFragmentNumber;
     transformedFragmentNumber.reserve(fragmentNumberDigits);
     TransformPositionToFragmentNumberRecursive(startPosition, endPosition, transformedPosition, fragmentNumberDigits, &transformedFragmentNumber);
+    
     std::cout << transformedFragmentNumber;
 
     return 0;

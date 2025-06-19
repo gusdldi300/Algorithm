@@ -1,32 +1,22 @@
 
 #include <iostream>
 
-#define MAX_NODE_COUNT (100000)
+#define MAX_NODE_COUNT (100001)
 
-void PrintNodesPreOrderedRecursive(int startIndex, int endIndex, int postOrderedStartIndex, int postOrderedEndIndex, const int* inOrderedNodes, const int* postOrderedNodes)
+void PrintNodesPreOrderedRecursive(int inOrderedStartIndex, int inOrderedEndIndex, int postOrderedStartIndex, int postOrderedEndIndex, const int* inOrderedNodesIndexes, const int* inOrderedNodes, const int* postOrderedNodes)
 {
-    if (startIndex > endIndex)
+    if (inOrderedStartIndex > inOrderedEndIndex)
     {
         return;
     }
 
     int parentNode = postOrderedNodes[postOrderedEndIndex];
-
-    int inOrderedParentIndex = -1;
-    for (int i = startIndex; i <= endIndex; ++i)
-    {
-        if (inOrderedNodes[i] == parentNode)
-        {
-            inOrderedParentIndex = i;
-            break;
-        }
-    }
+    int inOrderedNodesParentIndex = inOrderedNodesIndexes[parentNode];
 
     std::cout << parentNode << ' ';
-
-    int postOrderedLeftEndIndex = postOrderedStartIndex + (inOrderedParentIndex - startIndex) - 1;
-    PrintNodesPreOrderedRecursive(startIndex, inOrderedParentIndex - 1, postOrderedStartIndex, postOrderedLeftEndIndex, inOrderedNodes, postOrderedNodes);
-    PrintNodesPreOrderedRecursive(inOrderedParentIndex + 1, endIndex, postOrderedLeftEndIndex + 1, postOrderedEndIndex - 1, inOrderedNodes, postOrderedNodes);
+    int postOrderedLeftEndIndex = postOrderedStartIndex + (inOrderedNodesParentIndex - inOrderedStartIndex) - 1;
+    PrintNodesPreOrderedRecursive(inOrderedStartIndex, inOrderedNodesParentIndex - 1, postOrderedStartIndex, postOrderedLeftEndIndex, inOrderedNodesIndexes, inOrderedNodes, postOrderedNodes);
+    PrintNodesPreOrderedRecursive(inOrderedNodesParentIndex + 1, inOrderedEndIndex, postOrderedLeftEndIndex + 1, postOrderedEndIndex - 1, inOrderedNodesIndexes, inOrderedNodes, postOrderedNodes);
 }
 
 int main()
@@ -35,9 +25,14 @@ int main()
     std::cin >> nodeCount;
 
     int inOrderedNodes[MAX_NODE_COUNT];
+    int inOrderedNodesIndexes[MAX_NODE_COUNT];
     for (int i = 0; i < nodeCount; ++i)
     {
-        std::cin >> inOrderedNodes[i];
+        int node = -1;
+        std::cin >> node;
+        
+        inOrderedNodes[i] = node;
+        inOrderedNodesIndexes[node] = i;
     }
 
     int postOrderedNodes[MAX_NODE_COUNT];
@@ -47,7 +42,7 @@ int main()
     }
 
     int endIndex = nodeCount - 1;
-    PrintNodesPreOrderedRecursive(0, endIndex, 0, endIndex, inOrderedNodes, postOrderedNodes);
+    PrintNodesPreOrderedRecursive(0, endIndex, 0, endIndex, inOrderedNodesIndexes, inOrderedNodes, postOrderedNodes);
 
     return 0;
 }
