@@ -57,7 +57,8 @@ std::pair<bool, int> IsSlimpRecursive(const char* testString)
     {
         return std::pair<bool, int>(true, 2);
     }
-    else if (*checkString == 'B')
+    
+    if (*checkString == 'B')
     {
         ++checkString;
         std::pair<bool, int> slimpResult = IsSlimpRecursive(checkString);
