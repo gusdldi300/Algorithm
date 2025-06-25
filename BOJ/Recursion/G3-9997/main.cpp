@@ -3,24 +3,22 @@
 
 #define VISITED_ALL_ALPHABET_MASKS (0x03FFFFFF)
 
-static unsigned int s_total_sentence_count = 0;
+static unsigned int sTotalSentenceCount = 0;
 
-void GetTotalSentenceCountRecursive(unsigned int alphabetMasks, unsigned int wordsIndex, const unsigned int* alphabetMasksWords, unsigned int wordsSize)
+void GetTotalSentenceCountRecursive(unsigned int alphabetMasks, unsigned int wordsIndex, const unsigned int* alphabetMaskedWords, const unsigned int wordsSize)
 {
-    if (alphabetMasks == VISITED_ALL_ALPHABET_MASKS)
+    if (wordsIndex >= wordsSize)
     {
-        s_total_sentence_count++;
-    }
+        if (alphabetMasks == VISITED_ALL_ALPHABET_MASKS)
+        {
+            sTotalSentenceCount++;
+        }
 
-    if (wordsIndex == wordsSize)
-    {
         return;
     }
 
-    for (unsigned int i = wordsIndex; i < wordsSize; ++i)
-    {
-        GetTotalSentenceCountRecursive(alphabetMasks | alphabetMasksWords[i], i + 1, alphabetMasksWords, wordsSize);
-    }
+    GetTotalSentenceCountRecursive(alphabetMasks | alphabetMaskedWords[wordsIndex], wordsIndex + 1, alphabetMaskedWords, wordsSize);
+    GetTotalSentenceCountRecursive(alphabetMasks, wordsIndex + 1, alphabetMaskedWords, wordsSize);
 }
 
 int main()
@@ -28,7 +26,7 @@ int main()
     enum { MAX_WORD_COUNT = 25 };
 
     unsigned int wordsSize = 0;
-    unsigned int alphabetMasksWords[MAX_WORD_COUNT];
+    unsigned int alphabetMaskedWords[MAX_WORD_COUNT];
     
     std::cin >> wordsSize;
     for (unsigned int i = 0; i < wordsSize; ++i)
@@ -37,21 +35,18 @@ int main()
         std::cin >> word;
 
         unsigned int alphabetMasks = 0;
-        for (unsigned int alphabetIndex = 0; alphabetIndex < word.size(); ++alphabetIndex)
+        unsigned int wordSize = word.size();
+        for (unsigned int alphabetIndex = 0; alphabetIndex < wordSize; ++alphabetIndex)
         {
-            unsigned int alphabetMask = 1 << (word[alphabetIndex] - 'a');
-            alphabetMasks |= alphabetMask;
+            alphabetMasks |= (1 << (word[alphabetIndex] - 'a'));
         }
 
-        alphabetMasksWords[i] = alphabetMasks;
+        alphabetMaskedWords[i] = alphabetMasks;
     }
 
-    for (unsigned int i = 0; i < wordsSize; ++i)
-    {
-        GetTotalSentenceCountRecursive(alphabetMasksWords[i], i + 1, alphabetMasksWords, wordsSize);
-    }
+    GetTotalSentenceCountRecursive(0, 0, alphabetMaskedWords, wordsSize);
 
-    std::cout << s_total_sentence_count << std::endl;
+    std::cout << sTotalSentenceCount;
     
     return 0;
 }
