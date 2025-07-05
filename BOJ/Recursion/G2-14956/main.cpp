@@ -32,7 +32,7 @@ static const Path sPrevPaths[MAX_PATH_COUNT][MAX_PATH_COUNT] =
 
 void PrintPhilosoperPositionRecursive(ePathDirection pathDirection, unsigned int leftStepCount, unsigned int x, unsigned int y, unsigned int squareLength)
 {
-    if (squareLength <= 1)
+    if (squareLength <= MIN_SQUARE_LENGTH)
     {
         std::cout << x << ' ' << y;
         
