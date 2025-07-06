@@ -5,17 +5,14 @@
 
 #define MAX_NODES_COUNT (50)
 
-unsigned int FillTreeNodeCountsRecursive(unsigned int treeNode, unsigned long long* visitedTreeNodeCounts)
+unsigned long long FillTreeNodeCountsRecursive(unsigned int treeNode, unsigned long long* visitedTreeNodeCounts)
 {
     if (visitedTreeNodeCounts[treeNode] > 0)
     {
         return visitedTreeNodeCounts[treeNode];
     }
 
-    unsigned long long leftChildCount = FillTreeNodeCountsRecursive(treeNode - 2, visitedTreeNodeCounts);
-    unsigned long long rightChildCount = FillTreeNodeCountsRecursive(treeNode - 1, visitedTreeNodeCounts);
-
-    visitedTreeNodeCounts[treeNode] = 1LL + leftChildCount + rightChildCount;
+    visitedTreeNodeCounts[treeNode] = 1LL + FillTreeNodeCountsRecursive(treeNode - 2, visitedTreeNodeCounts) + FillTreeNodeCountsRecursive(treeNode - 1, visitedTreeNodeCounts);
 }
 
 void SearchNodeRecursive(unsigned int currentSearchSequence, const unsigned int searchSequence, unsigned int currentNode, std::string* outSearchPaths, const unsigned long long* visitedTreeNodeCounts)
@@ -54,7 +51,12 @@ int main()
     visitedTreeNodeCounts[0] = 1;
     visitedTreeNodeCounts[1] = 1;
 
-    FillTreeNodeCountsRecursive(treeNode, visitedTreeNodeCounts);
+    //FillTreeNodeCountsRecursive(treeNode, visitedTreeNodeCounts);
+
+    for (unsigned int i = 2; i < MAX_NODES_COUNT + 1; ++i)
+    {
+        visitedTreeNodeCounts[i] = visitedTreeNodeCounts[i - 2] + visitedTreeNodeCounts[i - 1] + 1LL;
+    }
     
     std::string startNodePaths;
     SearchNodeRecursive(1, startSearchSequence, treeNode, &startNodePaths, visitedTreeNodeCounts);
@@ -63,7 +65,7 @@ int main()
     SearchNodeRecursive(1, endSearchSequence, treeNode, &endNodePaths, visitedTreeNodeCounts);
 
     std::string shortestPaths;
-    //shortestPaths.reserve(startNodePaths.size() + endNodePaths.size());
+    shortestPaths.reserve(startNodePaths.size() + endNodePaths.size());
 
     const char* startPathsPtr = startNodePaths.c_str();
     const char* endPathsPtr = endNodePaths.c_str();
