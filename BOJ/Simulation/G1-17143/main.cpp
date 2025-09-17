@@ -28,7 +28,7 @@ class Shark
 {
 public:
     Shark(const Position currentPosition, unsigned int size, unsigned int speed, eDirection moveDirection);
-    void Move(std::queue<Shark*> outSharksMap[][MAX_MAP_SIZE]);
+    void Move(Shark* outBiggestSharkOrNullsMap[][MAX_MAP_SIZE]);
 
 public:
     bool bAlive;
@@ -47,11 +47,9 @@ Shark::Shark(const Position currentPosition, unsigned int size, unsigned int spe
 {
 }
 
-void Shark::Move(std::queue<Shark*> outSharksMap[][MAX_MAP_SIZE])
+// Sets on map only if this shark is bigger than other shark
+void Shark::Move(Shark* outBiggestSharkOrNullsMap[][MAX_MAP_SIZE])
 {
-    Shark* pMoveShark = outSharksMap[CurrentPosition.Row][CurrentPosition.Column].front();
-    outSharksMap[CurrentPosition.Row][CurrentPosition.Column].pop();
-
     int moveCount = -1;
     switch (MoveDirection)
     {
@@ -213,10 +211,25 @@ void Shark::Move(std::queue<Shark*> outSharksMap[][MAX_MAP_SIZE])
 
         break;
     }
+    default:
+        assert(false);
+        break;
     }
 
-    outSharksMap[CurrentPosition.Row][CurrentPosition.Column].push(pMoveShark);
-    std::queue<Shark*> checkQueue = outSharksMap[pMoveShark->CurrentPosition.Row][pMoveShark->CurrentPosition.Column];
+
+    Shark* otherSharkOrNull = outBiggestSharkOrNullsMap[CurrentPosition.Row][CurrentPosition.Column];
+    if (otherSharkOrNull != nullptr)
+    {
+        if (Size < otherSharkOrNull->Size)
+        {
+            bAlive = false;
+            return;
+        }
+
+        otherSharkOrNull->bAlive = false;
+    }
+
+    outBiggestSharkOrNullsMap[CurrentPosition.Row][CurrentPosition.Column] = this;
 }
 
 class Fisher
@@ -227,8 +240,7 @@ public:
     unsigned int GetCaughtSharksSize() const;
     unsigned int GetPositionColumn() const;
     void MovePositionColumn();
-    bool CatchNearestRowShark(std::queue<Shark*> outSharkMap[][MAX_MAP_SIZE]);
-
+    bool CatchNearestRowShark(Shark* outSharkOrNullsMap[][MAX_MAP_SIZE]);
 
 private:
     std::vector<Shark*> mCaughtSharks;
@@ -261,14 +273,13 @@ void Fisher::MovePositionColumn()
     mPositionColumn++;
 }
 
-bool Fisher::CatchNearestRowShark(std::queue<Shark*> outSharkMap[][MAX_MAP_SIZE])
+bool Fisher::CatchNearestRowShark(Shark* outSharkOrNullsMap[][MAX_MAP_SIZE])
 {
     for (int row = 0; row < sMaxMapSizeRow; ++row)
     {
-        if (outSharkMap[row][mPositionColumn].size() > 0)
+        if (outSharkOrNullsMap[row][mPositionColumn] != nullptr)
         {
-            Shark* caughtShark = outSharkMap[row][mPositionColumn].front();
-            outSharkMap[row][mPositionColumn].pop();
+            Shark* caughtShark = outSharkOrNullsMap[row][mPositionColumn];
             caughtShark->bAlive = false;
             
             mCaughtSharks.push_back(caughtShark);
@@ -287,15 +298,15 @@ int main(void)
     {
         MAX_SHARK_COUNT = (MAX_MAP_SIZE * MAX_MAP_SIZE)
     };
-    
+
     std::cin >> sMaxMapSizeRow >> sMaxMapSizeColumn >> sTotalSharkCount;
     assert(sMaxMapSizeRow <= MAX_MAP_SIZE && sMaxMapSizeColumn <= MAX_MAP_SIZE);
     assert(sTotalSharkCount <= MAX_SHARK_COUNT);
-    
+
     std::queue<Shark> sharks;
 
-    std::queue<Shark*> sharkQueue;
-    std::queue<Shark*> sharksMap[MAX_MAP_SIZE][MAX_MAP_SIZE];
+    std::queue<Shark*> pSharkQueue;
+    Shark* pSharkOrNullsMap[MAX_MAP_SIZE][MAX_MAP_SIZE] = { nullptr, };
 
     for (unsigned int sharkIndex = 0; sharkIndex < sTotalSharkCount; ++sharkIndex)
     {
@@ -313,8 +324,8 @@ int main(void)
         Shark newShark(sharkPosition, sharkSize, sharkSpeed, static_cast<eDirection>(sharkMoveDirection));
         sharks.push(newShark);
         
-        sharkQueue.push(&sharks.back());
-        sharksMap[sharkPosition.Row][sharkPosition.Column].push(&sharks.back());
+        pSharkQueue.push(&sharks.back());
+        pSharkOrNullsMap[sharkPosition.Row][sharkPosition.Column] = &sharks.back();
     }
 
     // Start fishing
@@ -322,78 +333,31 @@ int main(void)
 
     for (int fisherPositionColumn = fisher.GetPositionColumn(); fisherPositionColumn < sMaxMapSizeColumn; ++fisherPositionColumn)
     {
-        fisher.CatchNearestRowShark(sharksMap);
+        fisher.CatchNearestRowShark(pSharkOrNullsMap);
 
-        // Move sharks
-        unsigned int sharkQueueSize = static_cast<unsigned int>(sharkQueue.size());
-        for (unsigned int sharkIndex = 0; sharkIndex < sharkQueueSize; ++sharkIndex)
-        {
-            Shark* pShark = sharkQueue.front();
-            sharkQueue.pop();
-            if (pShark->bAlive == false)
-            {
-                continue;
-            }
-            sharkQueue.push(pShark);
-
-            pShark->Move(sharksMap);
-
-            /*
-            std::cout << pShark->Size << ": " << pShark->CurrentPosition.Row << ", " << pShark->CurrentPosition.Column << ", ";
-            switch (pShark->MoveDirection)
-            {
-            case eDirection::Up:
-                std::cout << "Up";
-                break;
-            case eDirection::Down:
-                std::cout << "Down";
-                break;
-            case eDirection::Left:
-                std::cout << "Left";
-                break;
-            case eDirection::Right:
-                std::cout << "Right";
-                break;
-            default:
-                assert(false);
-                break;
-            }
-
-            std::cout << std::endl;
-            */
-        }
-        //std::cout << std::endl;
-
-        // Get biggest shark in every map
+        // Must reset map
         for (int row = 0; row < sMaxMapSizeRow; ++row)
         {
             for (int column = 0; column < sMaxMapSizeColumn; ++column)
             {
-                // Todo: Compare stack
-                if (sharksMap[row][column].size() <= 1)
-                {
-                    continue;
-                }
-
-                Shark* pBiggestShark = sharksMap[row][column].front();
-                sharksMap[row][column].pop();
-                pBiggestShark->bAlive = false;
-
-                while (sharksMap[row][column].empty() == false)
-                {
-                    Shark* pCompareShark = sharksMap[row][column].front();
-                    if (pBiggestShark->Size < pCompareShark->Size)
-                    {
-                        pBiggestShark = pCompareShark;
-                    }
-
-                    sharksMap[row][column].pop();
-                    pCompareShark->bAlive = false;
-                }
-
-                sharksMap[row][column].push(pBiggestShark);
-                pBiggestShark->bAlive = true;
+                pSharkOrNullsMap[row][column] = nullptr;
             }
+        }
+
+        unsigned int sharkQueueSize = static_cast<unsigned int>(pSharkQueue.size());
+        for (unsigned int sharkIndex = 0; sharkIndex < sharkQueueSize; ++sharkIndex)
+        {
+            Shark* pShark = pSharkQueue.front();
+            pSharkQueue.pop();
+            if (pShark->bAlive == false)
+            {
+                continue;
+            }
+
+            pSharkQueue.push(pShark);
+
+            // Set biggest shark on the map
+            pShark->Move(pSharkOrNullsMap);
         }
 
         fisher.MovePositionColumn();
