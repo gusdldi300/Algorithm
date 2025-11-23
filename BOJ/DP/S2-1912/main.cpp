@@ -20,12 +20,7 @@ int main()
     {
         std::cin >> sSeqeunce[i];
 
-        sMaxSums[i] = sSeqeunce[i];
-        
-        if (sMaxSums[i - 1] > 0)
-        {
-            sMaxSums[i] += sMaxSums[i - 1];
-        }
+        sMaxSums[i] = std::max(sSeqeunce[i], sSeqeunce[i] + sMaxSums[i - 1]);
     }
 
     int maxSum = INT_MIN;
