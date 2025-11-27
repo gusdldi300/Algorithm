@@ -130,7 +130,7 @@ int main()
 
     for (unsigned int tiltCount = 0; tiltCount <= MAX_TILT_COUNT; ++tiltCount)
     {
-        unsigned int boardInfoQueueSize = boardInfoQueue.size();
+        unsigned int boardInfoQueueSize = static_cast<unsigned int>(boardInfoQueue.size());
         for (unsigned int boardInfoCount = 0; boardInfoCount < boardInfoQueueSize; ++boardInfoCount)
         {
             BoardInfo boardInfo = boardInfoQueue.front();

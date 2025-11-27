@@ -41,7 +41,7 @@ int main()
         {
             if (shortcut.End == distance)
             {
-                minDistance = std::min(minDistance, sMinDriveDistances[shortcut.Start] + (shortcut.Distance));
+                minDistance = std::min(minDistance, sMinDriveDistances[shortcut.Start] + shortcut.Distance);
             }
         }
 
