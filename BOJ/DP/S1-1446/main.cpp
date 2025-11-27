@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 
 #define MAX_DISTANCE (10001U)
 #define MAX_SHORTCUTS (12U)
@@ -23,23 +24,25 @@ int main()
 
     std::cin >> shortcutsCount >> highwayDistance;
 
-    std::vector<Shortcut> shortcuts;
+    std::unordered_map<unsigned int, std::vector<Shortcut>> shortcuts;
+    
     shortcuts.reserve(shortcutsCount);
     for (unsigned int i = 0; i < shortcutsCount; ++i)
     {
         Shortcut shortcut;
         std::cin >> shortcut.Start >> shortcut.End >> shortcut.Distance;
 
-        shortcuts.push_back(shortcut);
+        shortcuts[shortcut.End].push_back(shortcut);
     }
 
     for (unsigned int distance = 1; distance <= highwayDistance; ++distance)
     {
         unsigned int minDistance = sMinDriveDistances[distance - 1] + 1;
 
-        for (Shortcut shortcut : shortcuts)
+        std::unordered_map<unsigned int, std::vector<Shortcut>>::iterator shortcutsIter = shortcuts.find(distance);
+        if (shortcutsIter != shortcuts.end())
         {
-            if (shortcut.End == distance)
+            for (Shortcut shortcut : shortcutsIter->second)
             {
                 minDistance = std::min(minDistance, sMinDriveDistances[shortcut.Start] + shortcut.Distance);
             }
