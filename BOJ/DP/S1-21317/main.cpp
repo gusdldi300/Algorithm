@@ -3,11 +3,12 @@
 #include <climits>
 #include <iostream>
 
-#define MAX_STONE_COUNT (21U)
+#define MAX_ENERGY (5000U)
+#define MAX_STONE_COUNT (20U)
 
-#define SUPER_JUMP (3)
-#define LOW_JUMP (1)
-#define HIGH_JUMP (2)
+#define SUPER_JUMP (3U)
+#define LOW_JUMP (1U)
+#define HIGH_JUMP (2U)
 
 struct Energy
 {
@@ -16,72 +17,44 @@ struct Energy
 };
 
 static Energy sJumpEnergies[MAX_STONE_COUNT] = { 0, };
-static unsigned int sUsedEnergies[MAX_STONE_COUNT][MAX_STONE_COUNT] = { 0, };
+static unsigned int sUsedEnergies[MAX_STONE_COUNT][2] = { 0, };
 
 int main()
 {
-    int stoneCount = 0;
+    unsigned int stoneCount = 0;
     std::cin >> stoneCount;
 
-    for (int stone = 1; stone < stoneCount; ++stone)
+    for (unsigned int stone = 0; stone < stoneCount - 1; ++stone)
     {
         std::cin >> sJumpEnergies[stone].low >> sJumpEnergies[stone].high;
     }
-    
+
     unsigned int superJumpEnergy = 0;
     std::cin >> superJumpEnergy;
 
-    if (stoneCount == 1)
+    for (unsigned int stone = 1; stone < stoneCount; ++stone)
     {
-        std::cout << 0;
-
-        return 0;
-    }
-    else if (stoneCount == 2)
-    {
-        std::cout << sJumpEnergies[stoneCount - 1].low;
-
-        return 0;
+        sUsedEnergies[stone][0] = MAX_ENERGY;
+        sUsedEnergies[stone][1] = MAX_ENERGY;
     }
 
-    for (int superJumpIndex = 0; superJumpIndex <= stoneCount - SUPER_JUMP; ++superJumpIndex)
+    sUsedEnergies[1][0] = sJumpEnergies[0].low;
+    sUsedEnergies[2][0] = std::min(sUsedEnergies[1][0] + sJumpEnergies[1].low, sJumpEnergies[0].high);
+
+    for (int stone = SUPER_JUMP; stone < stoneCount; ++stone)
     {
-        for (int stone = 2; stone <= stoneCount; ++stone)
-        {
-            sUsedEnergies[superJumpIndex][stone] = UINT_MAX;
-        }
+        unsigned int lowJumpIndex = stone - LOW_JUMP;
+        unsigned int highJumpIndex = stone - HIGH_JUMP;
+
+        sUsedEnergies[stone][0] = std::min(sUsedEnergies[lowJumpIndex][0] + sJumpEnergies[lowJumpIndex].low,
+                                            sUsedEnergies[highJumpIndex][0] + sJumpEnergies[highJumpIndex].high);
+
+        sUsedEnergies[stone][1] = std::min(sUsedEnergies[lowJumpIndex][1] + sJumpEnergies[lowJumpIndex].low,
+            sUsedEnergies[highJumpIndex][1] + sJumpEnergies[highJumpIndex].high);
+        sUsedEnergies[stone][1] = std::min(sUsedEnergies[stone][1], sUsedEnergies[stone - SUPER_JUMP][0] + superJumpEnergy);
     }
 
-    for (int superJumpIndex = 0; superJumpIndex <= stoneCount - SUPER_JUMP; ++superJumpIndex)
-    {
-        int stone = 1;
-        for (stone = 1; stone <= stoneCount; ++stone)
-        {
-            if (superJumpIndex == stone)
-            {
-                stone += SUPER_JUMP;
-
-                sUsedEnergies[superJumpIndex][stone] = sUsedEnergies[superJumpIndex][stone - SUPER_JUMP] + superJumpEnergy;
-            }
-
-            if (stone + HIGH_JUMP <= stoneCount)
-            {
-                sUsedEnergies[superJumpIndex][stone + HIGH_JUMP] = sUsedEnergies[superJumpIndex][stone] + sJumpEnergies[stone].high;
-            }
-
-            if (stone + LOW_JUMP <= stoneCount)
-            {
-                sUsedEnergies[superJumpIndex][stone + LOW_JUMP] = std::min(sUsedEnergies[superJumpIndex][stone] + sJumpEnergies[stone].low, sUsedEnergies[superJumpIndex][stone + LOW_JUMP]);
-            }
-        }
-    }
-
-    unsigned int minUsedEnergy = UINT_MAX;
-    for (int superJumpIndex = 0; superJumpIndex <= stoneCount - SUPER_JUMP; ++superJumpIndex)
-    {
-        minUsedEnergy = std::min(minUsedEnergy, sUsedEnergies[superJumpIndex][stoneCount]);
-    }
-
+    unsigned int minUsedEnergy = std::min(sUsedEnergies[stoneCount - 1][0], sUsedEnergies[stoneCount - 1][1]);
     std::cout << minUsedEnergy;
 
     return 0;
