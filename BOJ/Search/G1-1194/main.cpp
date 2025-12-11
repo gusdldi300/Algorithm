@@ -7,21 +7,16 @@
 #define MAX_CHECK_DIRECTIONS_SIZE (4U)
 
 #define MAX_KEYS_COUNT (6U)
+#define ALL_KEYS_MASK (64U)
 
 #define SHIFT_BIT_LEFT(count)   \
-            (1 << count)        \
+            (1 << (count))        \
 
-#define SET_VISITED_MASK(row, col, visitedMasks)        \
-            (visitedMasks[row] |= SHIFT_BIT_LEFT(col))  \
-
-#define ADD_KEY(keyIndex, containedKeys)                     \
-            (containedKeys |= SHIFT_BIT_LEFT(key))      \
-
-#define HAS_VISITED(row, col, visitedMasks)                                  \
-            ((visitedMasks[row] & SHIFT_BIT_LEFT(col)) > 0 ? true : false)   \
+#define ADD_KEY(keyIndex, containedKeys)                    \
+            (containedKeys |= SHIFT_BIT_LEFT(keyIndex))     \
 
 #define HAS_KEY(keyIndex, containedKeys)                                          \
-            ((containedKeys & SHIFT_BIT_LEFT(keyIndex)) > 0 ? true : false)       \
+            (((containedKeys & SHIFT_BIT_LEFT(keyIndex)) > 0) ? true : false)       \
 
 struct Position
 {
@@ -29,86 +24,29 @@ struct Position
     int Col;
 };
 
+struct State
+{
+    Position Pos;
+    unsigned int Keys;
+    unsigned int MoveCount;
+};
+
 const static Position CHECK_DIRECTIONS[MAX_CHECK_DIRECTIONS_SIZE] = { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
 
 static int sMazeSizeRow;
 static int sMazeSizeCol;
 
+static char sMaze[MAX_MAZE_SIZE][MAX_MAZE_SIZE] = { 0, };
+static bool sVisited[ALL_KEYS_MASK][MAX_MAZE_SIZE][MAX_MAZE_SIZE] = { false, };
+
 static std::unordered_set<char> sTotalKeys;
 static std::unordered_set<char> sTotalDoors;
-
-static char sMaze[MAX_MAZE_SIZE][MAX_MAZE_SIZE] = { 0, };
-
-static int GetExitMazeMinMoveRecursive(const Position& startPosition, unsigned int lastKeys, int lastMoveCount)
-{
-    unsigned long long visitedMasks[MAX_MAZE_SIZE] = { 0, };
-
-    std::queue<Position> positionQueue;
-    positionQueue.push(startPosition);
-    
-    SET_VISITED_MASK(startPosition.Row, startPosition.Col, visitedMasks);
-
-    int totalMoveCount = INT_MAX;
-    int moveCount = lastMoveCount;
-
-    while (positionQueue.empty() == false)
-    {
-        Position position = positionQueue.front();
-        positionQueue.pop();
-
-        ++moveCount;
-        
-        if (sMaze[position.Row][position.Col] == '1')
-        {
-            return moveCount;
-        }
-
-        for (unsigned int dirIndex = 0; dirIndex < MAX_CHECK_DIRECTIONS_SIZE; ++dirIndex)
-        {
-            int nextRow = position.Row + CHECK_DIRECTIONS[dirIndex].Row;
-            int nextCol = position.Col + CHECK_DIRECTIONS[dirIndex].Col;
-
-            if (nextRow < 0 || nextRow >= sMazeSizeRow || nextCol < 0 || nextCol >= sMazeSizeCol)
-            {
-                continue;
-            }
-
-            char state = sMaze[nextRow][nextCol];
-
-            if (state == '#' || HAS_VISITED(nextRow, nextCol, visitedMasks))
-            {
-                continue;
-            }
-
-            if (sTotalDoors.find(state) != sTotalDoors.end() && HAS_KEY(state - 'A', lastKeys) == false)
-            {
-                continue;
-            }
-
-            SET_VISITED_MASK(nextRow, nextCol, visitedMasks);
-
-            if (sTotalKeys.find(state) != sTotalKeys.end() && HAS_KEY(state - 'a', lastKeys) == false)
-            {
-                unsigned int keys = lastKeys;
-                ADD_KEY(state - 'a', keys);
-
-                totalMoveCount = std::min(totalMoveCount, GetExitMazeMinMoveRecursive({ nextRow, nextCol }, keys, moveCount - 1));
-
-                continue;
-            }
-            
-            positionQueue.push({ nextRow, nextCol });
-        }
-    }
-
-    return totalMoveCount;
-}
 
 int main()
 {
     std::cin >> sMazeSizeRow >> sMazeSizeCol;
     
-    Position startPosition = { 0, };
+    State startState = { 0, };
     for (int row = 0; row < sMazeSizeRow; ++row)
     {
         std::string rowMazeString;
@@ -120,7 +58,8 @@ int main()
 
             if (sMaze[row][col] == '0')
             {
-                startPosition = { row, col };
+                startState.Pos.Row = row;
+                startState.Pos.Col = col;
             }
         }
     }
@@ -139,7 +78,66 @@ int main()
     sTotalDoors.insert('E');
     sTotalDoors.insert('F');
 
-    std::cout << GetExitMazeMinMoveRecursive(startPosition, 0, 0);
+    State exitState = { 0, };
+
+    std::queue<State> stateQueue;
+    stateQueue.push(startState);
+    sVisited[startState.Keys][startState.Pos.Row][startState.Pos.Col] = true;
+
+    while (stateQueue.empty() == false)
+    {
+        State state = stateQueue.front();
+        stateQueue.pop();
+
+        if (sMaze[state.Pos.Row][state.Pos.Col] == '1')
+        {
+            exitState = state;
+
+            break;
+        }
+
+        for (unsigned int dirIndex = 0; dirIndex < MAX_CHECK_DIRECTIONS_SIZE; ++dirIndex)
+        {
+            int nextRow = state.Pos.Row + CHECK_DIRECTIONS[dirIndex].Row;
+            int nextCol = state.Pos.Col + CHECK_DIRECTIONS[dirIndex].Col;
+
+            if (nextRow < 0 || nextRow >= sMazeSizeRow || nextCol < 0 || nextCol >= sMazeSizeCol)
+            {
+                continue;
+            }
+
+            char mazeState = sMaze[nextRow][nextCol];
+            if (mazeState == '#' || sVisited[state.Keys][nextRow][nextCol])
+            {
+                continue;
+            }
+
+            if (sTotalDoors.find(mazeState) != sTotalDoors.end() && HAS_KEY(mazeState - 'A', state.Keys) == false)
+            {
+                continue;
+            }
+
+            sVisited[state.Keys][nextRow][nextCol] = true;
+
+            unsigned int nextKeys = state.Keys;
+            if (sTotalKeys.find(mazeState) != sTotalKeys.end())
+            {
+                ADD_KEY(mazeState - 'a', nextKeys);
+                sVisited[nextKeys][nextRow][nextCol] = true;
+            }
+
+            stateQueue.push({ { nextRow, nextCol }, nextKeys, state.MoveCount + 1 });
+        }
+    }
+
+    if (exitState.MoveCount == 0)
+    {
+        std::cout << -1;
+    }
+    else
+    {
+        std::cout << exitState.MoveCount;
+    }
 
     return 0;
 }
