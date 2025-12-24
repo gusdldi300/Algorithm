@@ -132,8 +132,6 @@ int main()
         }
     }
 
-    
-
     unsigned int totalMoveCount = 0;
     for (unsigned int i = 1; i <= sMaxKeyCount; ++i)
     {
