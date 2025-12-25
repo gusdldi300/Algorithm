@@ -5,7 +5,6 @@
 #define MAX_MAP_SIZE (101)
 #define MAX_MOVE_POSITIONS_SIZE (2)
 
-
 static long long sCases[MAX_MAP_SIZE][MAX_MAP_SIZE] = { 0, };
 static std::set<std::pair<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, unsigned int>>> sRepairRoads;
 
