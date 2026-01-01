@@ -151,7 +151,6 @@ int main()
     }
 
     SetEquilibriumsRecursive(0, { 0, 0 }, 0);
-    std::sort(sEquilibriums.begin(), sEquilibriums.end(), CompareEquilibriums);
 
     if (equilibriumIndex >= sEquilibriums.size())
     {
