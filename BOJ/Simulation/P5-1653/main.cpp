@@ -8,7 +8,7 @@
 #define MAX_WEIGHTS_COUNT (10U)
 #define MAX_INTEGER_DIGIT (5U)
 
-static std::vector<unsigned int> sWeigths;
+static std::vector<unsigned int> sWeights;
 static std::vector<std::pair<unsigned int, unsigned int>> sEquilibriums;
 
 struct IntegerInfo
@@ -61,7 +61,7 @@ static void AddEquilibriumsRecursive(unsigned int digit, const IntegerInfo& inte
 
     unsigned int copiedUsedWeightFlags = usedWeightFlags;
 
-    for (unsigned int weight : sWeigths)
+    for (unsigned int weight : sWeights)
     {
         if (HasUsedWeight(copiedUsedWeightFlags, weight))
         {
@@ -76,7 +76,7 @@ static void AddEquilibriumsRecursive(unsigned int digit, const IntegerInfo& inte
 
             if (newInfo.Weight > leftIntegerInfo.Weight)
             {
-                continue;
+                break;
             }
 
             SetUsedWeight(&copiedUsedWeightFlags, weight);
@@ -102,7 +102,7 @@ static void SetEquilibriumsRecursive(unsigned int digit, const IntegerInfo& inte
 
     unsigned int copiedUsedWeightFlags = usedWeightFlags;
 
-    for (unsigned int weight : sWeigths)
+    for (unsigned int weight : sWeights)
     {
         if (HasUsedWeight(copiedUsedWeightFlags, weight))
         {
@@ -130,15 +130,15 @@ int main()
     unsigned int weightsSetSize;
     std::cin >> weightsSetSize;
 
+    sWeights.push_back(0);
+
     for (unsigned int i = 0; i < weightsSetSize; ++i)
     {
         unsigned int weight;
         std::cin >> weight;
 
-        sWeigths.push_back(weight);
+        sWeights.push_back(weight);
     }
-
-    sWeigths.push_back(0);
 
     unsigned int equilibriumIndex;
     std::cin >> equilibriumIndex;
