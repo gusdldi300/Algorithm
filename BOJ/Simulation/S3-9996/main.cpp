@@ -31,7 +31,6 @@ int main()
         }
 
         leftString.push_back(pattern[patternIndex]);
-        reversedRightString.push_back(pattern[patternIndex]);
     }
 
     for (int patternIndex = pattern.size() - 1; patternIndex >= 0; --patternIndex)
@@ -41,6 +40,7 @@ int main()
             break;
         }
 
+        reversedRightString.push_back(pattern[patternIndex]);
     }
 
     for (unsigned int i = 0; i < filesCount; ++i)
