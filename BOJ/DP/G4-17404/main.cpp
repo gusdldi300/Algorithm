@@ -6,7 +6,7 @@
 #define MAX_HOUSES_COUNT (1001U)
 
 static unsigned int sHouseColorPrices[MAX_HOUSES_COUNT][MAX_COLORS_COUNT];
-static unsigned int sMinPrices[MAX_COLORS_COUNT][MAX_HOUSES_COUNT][MAX_COLORS_COUNT];
+static unsigned int sMinPrices[MAX_HOUSES_COUNT][MAX_COLORS_COUNT];
 
 int main()
 {
@@ -24,28 +24,25 @@ int main()
         }
     }
 
+    unsigned int minPrice = UINT_MAX;
+
     for (unsigned int startColor = 0; startColor < MAX_COLORS_COUNT; ++startColor)
     {
         for (unsigned int housesIndex = 0; housesIndex < housesCount; ++housesIndex)
         {
             for (unsigned int colorsIndex = 0; colorsIndex < MAX_COLORS_COUNT; ++colorsIndex)
             {
-                sMinPrices[startColor][housesIndex][colorsIndex] = UINT_MAX;
+                sMinPrices[housesIndex][colorsIndex] = UINT_MAX;
             }
         }
-    }
 
-    sMinPrices[0][0][0] = sHouseColorPrices[0][0];
-    sMinPrices[1][0][1] = sHouseColorPrices[0][1];
-    sMinPrices[2][0][2] = sHouseColorPrices[0][2];
+        sMinPrices[0][startColor] = sHouseColorPrices[0][startColor];
 
-    for (unsigned int startColor = 0; startColor < MAX_COLORS_COUNT; ++startColor)
-    {
         for (unsigned int housesIndex = 0; housesIndex < (housesCount - 1); ++housesIndex)
         {
             for (unsigned int colorsIndex = 0; colorsIndex < MAX_COLORS_COUNT; ++colorsIndex)
             {
-                if (sMinPrices[startColor][housesIndex][colorsIndex] == UINT_MAX)
+                if (sMinPrices[housesIndex][colorsIndex] == UINT_MAX)
                 {
                     continue;
                 }
@@ -57,16 +54,12 @@ int main()
                         continue;
                     }
 
-                    sMinPrices[startColor][housesIndex + 1][nextColorsIndex] = std::min(sMinPrices[startColor][housesIndex + 1][nextColorsIndex],
-                                                                            sMinPrices[startColor][housesIndex][colorsIndex] + sHouseColorPrices[housesIndex + 1][nextColorsIndex]);
+                    sMinPrices[housesIndex + 1][nextColorsIndex] = std::min(sMinPrices[housesIndex + 1][nextColorsIndex],
+                                                                            sMinPrices[housesIndex][colorsIndex] + sHouseColorPrices[housesIndex + 1][nextColorsIndex]);
                 }
             }
         }
-    }
 
-    unsigned int minPrice = UINT_MAX;
-    for (unsigned int startColor = 0; startColor < MAX_COLORS_COUNT; ++startColor)
-    {
         for (unsigned int colorsIndex = 0; colorsIndex < MAX_COLORS_COUNT; ++colorsIndex)
         {
             if (startColor == colorsIndex)
@@ -74,7 +67,7 @@ int main()
                 continue;
             }
 
-            minPrice = std::min(minPrice, sMinPrices[startColor][(housesCount - 1)][colorsIndex]);
+            minPrice = std::min(minPrice, sMinPrices[housesCount - 1][colorsIndex]);
         }
     }
 
