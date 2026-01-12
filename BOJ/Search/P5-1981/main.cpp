@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <iostream>
 #include <queue>
-#include <set>
+#include <climits>
 
 #define MAX_ARRAY_SIZE (101U)
 #define MAX_DIRECTIONS (4U)
@@ -14,41 +14,23 @@ struct Position
 };
 
 static const Position MOVE_DIRECTION_POSITIONS[MAX_DIRECTIONS] = { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 } };
-static unsigned int sArray[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE];
+static int sArray[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE];
 static int sArraySize;
 
-static int GetNumberIndexFromRecursive(const std::vector<unsigned int>& numbersAscend, unsigned int number, int leftIndex, int rightIndex)
+static bool HasReachedExit(int minNumber, int maxNumber)
 {
-    if (leftIndex > rightIndex)
+    if (sArray[0][0] < minNumber || sArray[0][0] > maxNumber)
     {
-        return -1;
+        return false;
     }
 
-    int midIndex = (leftIndex + rightIndex) / 2;
-    if (number == numbersAscend[midIndex])
-    {
-        return midIndex;
-    }
+    bool visiteds[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE] = { false, };
 
-    if (number < numbersAscend[midIndex])
-    {
-        return GetNumberIndexFromRecursive(numbersAscend, number, leftIndex, midIndex - 1);
-    }
-
-    return GetNumberIndexFromRecursive(numbersAscend, number, midIndex + 1, rightIndex);
-}
-
-static bool CanGoToExitInRangeOf(unsigned int minNumber, unsigned int maxNumber)
-{
-    bool bVisiteds[MAX_ARRAY_SIZE][MAX_ARRAY_SIZE] = { false, };
-
-    Position startPosition = { 0, 0 };
-
+    Position startPosition = { 0 , 0 };
     std::queue<Position> positionQueue;
     positionQueue.push(startPosition);
-    bVisiteds[0][0] = true;
+    visiteds[0][0] = true;
 
-    bool bArrived = false;
     while (positionQueue.empty() == false)
     {
         Position position = positionQueue.front();
@@ -56,9 +38,7 @@ static bool CanGoToExitInRangeOf(unsigned int minNumber, unsigned int maxNumber)
 
         if (position.Row == sArraySize - 1 && position.Col == sArraySize - 1)
         {
-            bArrived = true;
-
-            break;
+            return true;
         }
 
         for (unsigned int dirIndex = 0; dirIndex < MAX_DIRECTIONS; ++dirIndex)
@@ -72,7 +52,7 @@ static bool CanGoToExitInRangeOf(unsigned int minNumber, unsigned int maxNumber)
                 continue;
             }
 
-            if (bVisiteds[nextRow][nextCol])
+            if (visiteds[nextRow][nextCol])
             {
                 continue;
             }
@@ -82,78 +62,73 @@ static bool CanGoToExitInRangeOf(unsigned int minNumber, unsigned int maxNumber)
                 continue;
             }
 
-            bVisiteds[nextRow][nextCol] = true;
+            visiteds[nextRow][nextCol] = true;
             positionQueue.push({ nextRow ,nextCol });
         }
     }
 
-    return bArrived;
+    return false;
+}
+
+static void GetMinDifferenceMoveRecursive(int left, int right, int maxDifference, int* outMinDifference)
+{
+    if (left > right)
+    {
+        return;
+    }
+
+    int midDifference = (left + right) / 2;
+    int maxNumber = midDifference;
+
+    bool bArrived = false;
+    for (int minNumber = 0; minNumber <= (maxDifference - midDifference); ++minNumber)
+    {
+        bArrived = HasReachedExit(minNumber, maxNumber);
+        if (bArrived)
+        {
+            *outMinDifference = midDifference;
+
+            break;
+        }
+        
+        maxNumber++;
+    }
+
+    if (bArrived)
+    {
+        GetMinDifferenceMoveRecursive(left, midDifference - 1, maxDifference, outMinDifference);
+    }
+    else
+    {
+        GetMinDifferenceMoveRecursive(midDifference + 1, right, maxDifference, outMinDifference);
+    }
 }
 
 int main()
 {
     std::cin >> sArraySize;
-
-    std::set<unsigned int> orderedNumberSet;
-    std::vector<unsigned int> numbersAscend;
-    numbersAscend.reserve(sArraySize * sArraySize + 1);
+    
+    int minNumber = UINT_MAX;
+    int maxNumber = 0;
 
     for (int row = 0; row < sArraySize; ++row)
     {
         for (int col = 0; col < sArraySize; ++col)
         {
-            std::cin >> sArray[row][col];
-            orderedNumberSet.insert(sArray[row][col]);
+            int number;
+
+            std::cin >> number;
+
+            sArray[row][col] = number;
+            minNumber = std::min(minNumber, number);
+            maxNumber = std::max(maxNumber, number);
         }
     }
 
-    for (unsigned int number : orderedNumberSet)
-    {
-        numbersAscend.push_back(number);
-    }
-
-    unsigned int minNumber = sArray[0][0];
-    unsigned int maxNumber = sArray[sArraySize - 1][sArraySize - 1];
-    if (minNumber > maxNumber)
-    {
-        minNumber = sArray[sArraySize - 1][sArraySize - 1];
-        maxNumber = sArray[0][0];
-    }
-
-    unsigned int minNumberIndex = GetNumberIndexFromRecursive(numbersAscend, minNumber, 0, numbersAscend.size() - 1);
-    unsigned int maxNumberIndex = GetNumberIndexFromRecursive(numbersAscend, maxNumber, 0, numbersAscend.size() - 1);
-
-    while (true)
-    {
-        if (CanGoToExitInRangeOf(numbersAscend[minNumberIndex], numbersAscend[maxNumberIndex]))
-        {
-            break;
-        }
-        
-        if (minNumberIndex == 0)
-        {
-            maxNumberIndex++;
-        }
-        else if (maxNumberIndex == numbersAscend.size() - 1)
-        {
-            minNumberIndex--;
-        }
-        else
-        {
-            unsigned int minDifference = numbersAscend[minNumberIndex] - numbersAscend[minNumberIndex - 1];
-            unsigned int maxDifference = numbersAscend[maxNumberIndex + 1] - numbersAscend[maxNumberIndex];
-            if (minDifference <= maxDifference)
-            {
-                minNumberIndex--;
-            }
-            else
-            {
-                maxNumberIndex++;
-            }
-        }
-    }
+    int minDifference = 0;
+    GetMinDifferenceMoveRecursive(0, (maxNumber - minNumber), (maxNumber - minNumber), &minDifference);
     
-    std::cout << (numbersAscend[maxNumberIndex] - numbersAscend[minNumberIndex]);
+    std::cout << minDifference;
 
     return 0;
 }
