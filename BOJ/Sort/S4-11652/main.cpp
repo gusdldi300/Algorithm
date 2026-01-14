@@ -46,7 +46,6 @@ int main()
     
     if (equalCardCount > mostCardCount)
     {
-        mostCardCount = equalCardCount;
         mostCard = cardsAscend[cardsAscend.size() - 1];
     }
 
