@@ -75,6 +75,6 @@ int main()
 
         std::cout << wolfSounds << std::endl;
     }
-    
+
     return 0;
 }
