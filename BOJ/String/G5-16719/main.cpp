@@ -6,17 +6,53 @@
 struct StringChar
 {
     char Character;
-    unsigned int Index;
+    int Index;
 };
-
-bool CompareStringCharByCharacter(const StringChar& first, const StringChar& second)
-{
-    return first.Character < second.Character;
-}
 
 bool CompareStringCharByIndex(const StringChar& first, const StringChar& second)
 {
     return first.Index < second.Index;
+}
+
+static void PrintString(const std::vector<StringChar>& stringChars)
+{
+    std::string printString;
+    printString.reserve(stringChars.size());
+
+    for (const StringChar& stringChar : stringChars)
+    {
+        printString.push_back(stringChar.Character);
+    }
+    
+    std::cout << printString << std::endl;
+}
+
+static void PrintStringRecursive(int startIndex, int endIndex, const std::string& string, std::vector<StringChar>* outPrintStringChars)
+{
+    if (startIndex > endIndex)
+    {
+        return;
+    }
+
+    StringChar minStringChar;
+    minStringChar.Character = string[startIndex];
+    minStringChar.Index = startIndex;
+
+    for (int i = startIndex + 1; i <= endIndex; ++i)
+    {
+        if (string[i] < minStringChar.Character)
+        {
+            minStringChar.Character = string[i];
+            minStringChar.Index = i;
+        }
+    }
+
+    outPrintStringChars->push_back(minStringChar);
+    std::stable_sort(outPrintStringChars->begin(), outPrintStringChars->end(), CompareStringCharByIndex);
+    PrintString(*outPrintStringChars);
+
+    PrintStringRecursive(minStringChar.Index + 1, endIndex, string, outPrintStringChars);
+    PrintStringRecursive(startIndex, minStringChar.Index - 1, string, outPrintStringChars);
 }
 
 int main()
@@ -27,36 +63,10 @@ int main()
     std::string string;
     std::cin >> string;
 
-    std::vector<StringChar> stringCharsCharacterAscend;
-    for (unsigned int i = 0; i < string.size(); ++i)
-    {
-        StringChar stringChar;
-        stringChar.Character = string[i];
-        stringChar.Index = i;
+    std::vector<StringChar> printStringChars;
+    printStringChars.reserve(string.size() + 1);
 
-        stringCharsCharacterAscend.push_back(std::move(stringChar));
-    }
-
-    std::stable_sort(stringCharsCharacterAscend.begin(), stringCharsCharacterAscend.end(), CompareStringCharByCharacter);
-    
-    std::vector<StringChar> printStringChar;
-    printStringChar.reserve(string.size() + 1);
-
-    std::string printString;
-    printString.reserve(string.size() + 1);
-    for (StringChar stringChar : stringCharsCharacterAscend)
-    {
-        printStringChar.push_back(std::move(stringChar));
-        std::stable_sort(printStringChar.begin(), printStringChar.end(), CompareStringCharByIndex);
-        
-        for (StringChar printStringChar : printStringChar)
-        {
-            printString.push_back(printStringChar.Character);
-        }
-
-        std::cout << printString << '\n';
-        printString.clear();
-    }
+    PrintStringRecursive(0, string.size() - 1, string, &printStringChars);
 
     return 0;
 }
