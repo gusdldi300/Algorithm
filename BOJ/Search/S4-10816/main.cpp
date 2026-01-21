@@ -3,45 +3,20 @@
 #include <iostream>
 #include <vector>
 
-static unsigned int GetCardsFoundCount(int findCard, const std::vector<int>& cardsAscend)
-{
-    unsigned int foundCount = 0;
+#define MAX_CARDS_COUNT (500001U)
 
+static unsigned int GetCardStartIndexFrom(const std::vector<int>& cardsAscend, int findCard)
+{
     int startIndex = 0;
-    int endIndex = cardsAscend.size() - 1;
-    while (startIndex <= endIndex)
+    int endIndex = static_cast<int>(cardsAscend.size()); 
+    while (startIndex < endIndex)
     {
         int midIndex = (startIndex + endIndex) / 2;
         int midCard = cardsAscend[midIndex];
-        if (midCard == findCard)
+        
+        if (findCard <= midCard)
         {
-            // Count found cards
-            for (int i = midIndex; i >= 0; --i)
-            {
-                if (cardsAscend[i] != findCard)
-                {
-                    break;
-                }
-
-                ++foundCount;
-            }
-
-            for (int i = midIndex + 1; i < cardsAscend.size(); ++i)
-            {
-                if (cardsAscend[i] != findCard)
-                {
-                    break;
-                }
-
-                ++foundCount;
-            }
-
-            break;
-        }
-
-        if (findCard < midCard)
-        {
-            endIndex = midIndex - 1;
+            endIndex = midIndex;
         }
         else
         {
@@ -49,7 +24,29 @@ static unsigned int GetCardsFoundCount(int findCard, const std::vector<int>& car
         }
     }
 
-    return foundCount;
+    return startIndex;
+}
+
+static unsigned int GetCardEndIndexFrom(const std::vector<int>& cardsAscend, int findCard)
+{
+    int startIndex = 0;
+    int endIndex = static_cast<int>(cardsAscend.size());
+    while (startIndex < endIndex)
+    {
+        int midIndex = (startIndex + endIndex) / 2;
+        int midCard = cardsAscend[midIndex];
+
+        if (findCard < midCard)
+        {
+            endIndex = midIndex;
+        }
+        else
+        {
+            startIndex = midIndex + 1;
+        }
+    }
+
+    return endIndex;
 }
 
 int main()
@@ -79,7 +76,10 @@ int main()
         int findCard;
         std::cin >> findCard;
 
-        std::cout << GetCardsFoundCount(findCard, cardsAscend) << ' ';
+        unsigned int startIndex = GetCardStartIndexFrom(cardsAscend, findCard);
+        unsigned int endIndex = GetCardEndIndexFrom(cardsAscend, findCard);
+
+        std::cout << (endIndex - startIndex) << ' ';
     }
 
     return 0;
