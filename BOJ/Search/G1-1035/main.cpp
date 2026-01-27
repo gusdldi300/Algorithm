@@ -96,6 +96,11 @@ static bool IsStatuesAllAttached(const Position& startPosition, unsigned int sta
 
 static void GetMinMoveCountRecursive(unsigned int statueIndex, unsigned int statueMasks, unsigned int moveSum, const Position& statuePosition)
 {
+    if (moveSum >= sMinMoveCount)
+    {
+        return;
+    }
+
     if (statueIndex == sStatuePositions.size())
     {
         if (IsStatuesAllAttached(statuePosition, statueMasks))
