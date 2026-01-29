@@ -5,26 +5,20 @@
 
 #define MAX_NUMBERS_COUNT (1001U)
 
-static void SetContinuosSumsOf(const std::vector<int>& numbers, std::vector<int>* outContinuosSums)
+static void GetContinuosSumsOf(const std::vector<int>& numbers, std::vector<int>* outContinuosSums)
 {
-    *outContinuosSums = numbers;
-
-    unsigned int lastStartIndex = 0;
-    for (unsigned int continuousCount = 2; continuousCount <= numbers.size(); ++continuousCount)
+    for (unsigned int startIndex = 0; startIndex < numbers.size(); ++startIndex)
     {
-        unsigned int addIndex = continuousCount - 1;
+        int sum = numbers[startIndex];
 
-        unsigned int lastSumsSize = outContinuosSums->size() - 1;
-        for (unsigned int lastIndex = lastStartIndex; lastIndex < lastSumsSize; ++lastIndex)
+        for (unsigned int addIndex = startIndex + 1; addIndex < numbers.size(); ++addIndex)
         {
-            unsigned int lastNumber = (*outContinuosSums)[lastIndex];
+            outContinuosSums->push_back(sum);
 
-            outContinuosSums->push_back(lastNumber + numbers[addIndex]);
-
-            ++addIndex;
+            sum += numbers[addIndex];
         }
-
-        lastStartIndex = lastSumsSize + 1;
+        
+        outContinuosSums->push_back(sum);
     }
 }
 
@@ -58,10 +52,10 @@ int main()
     }
 
     std::vector<int> firstContinuosSums;
-    SetContinuosSumsOf(firstNumbers, &firstContinuosSums);
+    GetContinuosSumsOf(firstNumbers, &firstContinuosSums);
 
     std::vector<int> secondContinuosSumsAscend;
-    SetContinuosSumsOf(secondNumbers, &secondContinuosSumsAscend);
+    GetContinuosSumsOf(secondNumbers, &secondContinuosSumsAscend);
 
     std::sort(secondContinuosSumsAscend.begin(), secondContinuosSumsAscend.end());
 
