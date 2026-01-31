@@ -2,12 +2,6 @@
 #include <iostream>
 #include <cstring>
 
-struct Fund
-{
-    unsigned int Amount;
-    unsigned int City;
-};
-
 #define MAX_CITIES_COUNT (101U)
 #define MAX_TIME (100001U)
 
@@ -17,11 +11,7 @@ int main()
     unsigned int maxTime;
     std::cin >> citiesCount >> maxTime;
 
-    Fund* pLastMaxFunds = (Fund*)malloc(sizeof(Fund) * (maxTime + 1));
-    memset(pLastMaxFunds, 0, sizeof(Fund) * (maxTime + 1));
-    
-    Fund* pMaxFunds = (Fund*)malloc(sizeof(Fund) * (maxTime + 1));
-    memset(pMaxFunds, 0, sizeof(Fund) * (maxTime + 1));
+    unsigned int maxFunds[MAX_CITIES_COUNT][MAX_TIME] = { 0, };
 
     unsigned int walkTime;
     unsigned int walkFund;
@@ -31,11 +21,8 @@ int main()
 
     std::cin >> walkTime >> walkFund >> cycleTime >> cycleFund;
 
-    pLastMaxFunds[walkTime].Amount = walkFund;
-    pLastMaxFunds[walkTime].City = 1;
-
-    pLastMaxFunds[cycleTime].Amount = std::max(pLastMaxFunds[cycleTime].Amount, cycleFund);
-    pLastMaxFunds[cycleTime].City = 1;
+    maxFunds[1][walkTime] = walkFund;
+    maxFunds[1][cycleTime] = std::max(maxFunds[1][cycleTime], cycleFund);
 
     for (unsigned int city = 2; city <= citiesCount; ++city)
     {
@@ -43,7 +30,7 @@ int main()
 
         for (unsigned int time = 0; time <= maxTime; ++time)
         {
-            if (pLastMaxFunds[time].City < (city - 1))
+            if (maxFunds[city - 1][time] <= 0)
             {
                 continue;
             }
@@ -51,34 +38,25 @@ int main()
             unsigned int cityWalkTime = time + walkTime;
             if (cityWalkTime <= maxTime)
             {
-                pMaxFunds[cityWalkTime].Amount = std::max(pMaxFunds[cityWalkTime].Amount, pLastMaxFunds[time].Amount + walkFund);
-                pMaxFunds[cityWalkTime].City = city;
+                maxFunds[city][cityWalkTime] = std::max(maxFunds[city][cityWalkTime], maxFunds[city - 1][time] + walkFund);
             }
 
             unsigned int cityCycleTime = time + cycleTime;
             if (cityCycleTime <= maxTime)
             {
-                pMaxFunds[cityCycleTime].Amount = std::max(pMaxFunds[cityCycleTime].Amount, pLastMaxFunds[time].Amount + cycleFund);
-                pMaxFunds[cityCycleTime].City = city;
+                maxFunds[city][cityCycleTime] = std::max(maxFunds[city][cityCycleTime], maxFunds[city - 1][time] + cycleFund);
             }
         }
-        
-        Fund* pTemp = pLastMaxFunds;
-        pLastMaxFunds = pMaxFunds;
-        pMaxFunds = pTemp;
     }
 
     unsigned int maxFund = 0;
     for (unsigned int time = 0; time <= maxTime; ++time)
     {
-        if (pLastMaxFunds[time].City == citiesCount)
+        if (maxFunds[citiesCount][time] > 0)
         {
-            maxFund = std::max(maxFund, pLastMaxFunds[time].Amount);
+            maxFund = std::max(maxFund, maxFunds[citiesCount][time]);
         }
     }
-
-    free(pLastMaxFunds);
-    free(pMaxFunds);
 
     std::cout << maxFund;
 
