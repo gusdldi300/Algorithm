@@ -115,7 +115,7 @@ int main()
     }
 
     //unsigned int totalCount = GetBlockCaseCountRecursive(0, 0);
-    std::cout << (blockHeightCounts[sStudentsCount - 1][sTargetHeight] % DIVISOR);
+    std::cout << blockHeightCounts[sStudentsCount - 1][sTargetHeight];
 
     return 0;
 }
