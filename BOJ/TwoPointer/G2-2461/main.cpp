@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <queue>
 
-#define MAX_CLASSES_COUNT (101U)
+#define MAX_CLASSES_COUNT (1001U)
 
 class Student
 {
