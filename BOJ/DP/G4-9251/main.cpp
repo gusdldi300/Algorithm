@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 
-#define MAX_STRING_SIZE (101U)
+#define MAX_STRING_SIZE (1001U)
 
 int main()
 {
