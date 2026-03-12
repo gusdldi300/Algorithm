@@ -1,8 +1,7 @@
 #include <iostream>
 #include <stack>
-#include <list>
 
-#define MAX_STRING_SIZE (101U)
+#define MAX_STRING_SIZE (1001U)
 
 int main()
 {
@@ -28,7 +27,8 @@ int main()
         }
     }
 
-    std::list<char> lcsList;
+    std::stack<char> lcsStack;
+
     unsigned int firstIndex = firstString.size();
     unsigned int secondIndex = secondString.size();
 
@@ -36,7 +36,7 @@ int main()
     {
         if (firstString[firstIndex - 1] == secondString[secondIndex - 1])
         {
-            lcsList.push_front(firstString[firstIndex - 1]);
+            lcsStack.push(firstString[firstIndex - 1]);
 
             --firstIndex;
             --secondIndex;
@@ -59,8 +59,15 @@ int main()
         }
     }
 
+    std::string lcs;
+    while (lcsStack.empty() == false)
+    {
+        lcs.push_back(lcsStack.top());
+        lcsStack.pop();
+    }
+
     std::cout << lcsLengths[firstString.size()][secondString.size()] << std::endl;
-    std::cout << lcsList;
+    std::cout << lcs;
 
     return 0;
 }
