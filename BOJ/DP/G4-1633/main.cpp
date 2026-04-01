@@ -2,6 +2,70 @@
 #include <vector>
 #include <cstring>
 
+#define MAX_PLAYERS_COUNT (1000U)
+#define MAX_SELECTED_PLAYERS (15U)
+
+struct Player
+{
+    int White;
+    int Black;
+};
+
+static std::vector<Player> sPlayers;
+static int sMaxAbilities[MAX_PLAYERS_COUNT + 1][MAX_SELECTED_PLAYERS + 1][MAX_SELECTED_PLAYERS + 1];
+
+static unsigned int GetMaxAbilityTeam(int playerIndex, unsigned int blackPlayerCount, unsigned int whitePlayerCount)
+{
+    if (playerIndex == -1)
+    {
+        return 0;
+    }
+
+    if (sMaxAbilities[playerIndex][blackPlayerCount][whitePlayerCount] > -1)
+    {
+        return sMaxAbilities[playerIndex][blackPlayerCount][whitePlayerCount];
+    }
+
+    unsigned int ability = GetMaxAbilityTeam(playerIndex - 1, blackPlayerCount, whitePlayerCount);
+
+    if (blackPlayerCount > 0)
+    {
+        ability = std::max(ability, GetMaxAbilityTeam(playerIndex - 1, blackPlayerCount - 1, whitePlayerCount) + sPlayers[playerIndex].Black);
+    }
+
+    if (whitePlayerCount > 0)
+    {
+        ability = std::max(ability, GetMaxAbilityTeam(playerIndex - 1, blackPlayerCount, whitePlayerCount - 1) + sPlayers[playerIndex].White);
+    }
+
+    sMaxAbilities[playerIndex][blackPlayerCount][whitePlayerCount] = ability;
+
+    return ability;
+}
+
+
+int main()
+{
+    while (true)
+    {
+        Player player;
+        std::cin >> player.White >> player.Black;
+        if (std::cin.eof())
+        {
+            break;
+        }
+
+        sPlayers.push_back(player);
+    }
+
+    memset(sMaxAbilities, -1, sizeof(sMaxAbilities));
+    std::cout << GetMaxAbilityTeam(static_cast<int>(sPlayers.size() - 1), MAX_SELECTED_PLAYERS, MAX_SELECTED_PLAYERS);
+
+    return 0;
+}
+
+
+/*
 #define MAX_PLAYERS_COUNT (1001U)
 #define MAX_SELECTED_PLAYERS (15U)
 
@@ -60,3 +124,4 @@ int main()
 
     return 0;
 }
+*/
