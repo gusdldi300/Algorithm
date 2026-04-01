@@ -57,6 +57,7 @@ int main()
                     }
 
                     unsigned int rightChildIndex = leftChildIndex + 1;
+                    unsigned int minChildIndex = 0;
                     if (rightChildIndex > lastIndex || numbers[leftChildIndex] <= numbers[rightChildIndex])
                     {
                         if (numbers[index] <= numbers[leftChildIndex])
@@ -64,8 +65,7 @@ int main()
                             break;
                         }
 
-                        SwapNumber(index, leftChildIndex, numbers);
-                        index = leftChildIndex;
+                        minChildIndex = leftChildIndex;
                     }
                     else
                     {
@@ -74,9 +74,11 @@ int main()
                             break;
                         }
 
-                        SwapNumber(index, rightChildIndex, numbers);
-                        index = rightChildIndex;
+                        minChildIndex = rightChildIndex;
                     }
+
+                    SwapNumber(index, minChildIndex, numbers);
+                    index = minChildIndex;
                 }
             }
 
