@@ -1,6 +1,5 @@
 #include <iostream>
 #include <queue>
-#include <climits>
 
 int main()
 {
@@ -13,45 +12,52 @@ int main()
     std::priority_queue<int> midLeftEqualNumbersDescend;
     std::priority_queue<int, std::vector<int>, std::greater<int>> midRightNumbersAscend;
 
+
     int number;
     std::cin >> number;
 
     midLeftEqualNumbersDescend.push(number);
     std::cout << number << '\n';
-
-    for (unsigned int i = 1; i < numbersCount; ++i)
+    
+    if (numbersCount == 1)
     {
-        int number;
+        return 0;
+    }
+
+    std::cin >> number;
+    midLeftEqualNumbersDescend.push(number);
+    midRightNumbersAscend.push(midLeftEqualNumbersDescend.top());
+
+    midLeftEqualNumbersDescend.pop();
+
+    std::cout << midLeftEqualNumbersDescend.top() << '\n';
+
+    for (unsigned int i = 2; i < numbersCount; ++i)
+    {
         std::cin >> number;
 
-        midLeftEqualNumbersDescend.push(number);
-
-        int midNumber = INT_MAX;
-        if (midLeftEqualNumbersDescend.size() > midRightNumbersAscend.size() + 1)
+        if (midLeftEqualNumbersDescend.size() <= midRightNumbersAscend.size())
         {
-            midRightNumbersAscend.push(midLeftEqualNumbersDescend.top());
-            midLeftEqualNumbersDescend.pop();
-
-            midNumber = std::min(midLeftEqualNumbersDescend.top(), midRightNumbersAscend.top());
+            midLeftEqualNumbersDescend.push(number);
         }
         else
         {
-            if (midLeftEqualNumbersDescend.top() > midRightNumbersAscend.top())
-            {
-                int leftNumber = midLeftEqualNumbersDescend.top();
-                midLeftEqualNumbersDescend.pop();
-
-                int rightNumber = midRightNumbersAscend.top();
-                midRightNumbersAscend.pop();
-
-                midLeftEqualNumbersDescend.push(rightNumber);
-                midRightNumbersAscend.push(leftNumber);
-            }
-
-            midNumber = midLeftEqualNumbersDescend.top();
+            midRightNumbersAscend.push(number);
         }
 
-        std::cout << midNumber << '\n';
+        if (midLeftEqualNumbersDescend.top() > midRightNumbersAscend.top())
+        {
+            int leftNumber = midLeftEqualNumbersDescend.top();
+            midLeftEqualNumbersDescend.pop();
+
+            int rightNumber = midRightNumbersAscend.top();
+            midRightNumbersAscend.pop();
+
+            midLeftEqualNumbersDescend.push(rightNumber);
+            midRightNumbersAscend.push(leftNumber);
+        }
+
+        std::cout << midLeftEqualNumbersDescend.top() << '\n';
     }
 
     return 0;
