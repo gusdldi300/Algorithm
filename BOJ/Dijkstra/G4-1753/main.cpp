@@ -66,12 +66,10 @@ int main()
         {
             unsigned int accumulatedDistance = minDistances[edge.ToNode] + nextEdge.Distance;
 
-            /*
             if (accumulatedDistance >= minDistances[nextEdge.ToNode])
             {
                 continue;
             }
-            */
 
             minDistances[nextEdge.ToNode] = minDistances[edge.ToNode] + nextEdge.Distance;
             edgeQueueAscend.push({ nextEdge.ToNode, accumulatedDistance });
