@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -9,34 +10,7 @@ static unsigned int sCarriagesPerTrain;
 
 std::vector<unsigned int> sTrainPassengers;
 
-unsigned int sMaxPassengers[MAX_TRAINS_COUNT][MAX_CARRIAGES_COUNT] = { 0, };
-
-static unsigned int GetMaxPassengersRecursive(unsigned int trainsIndex, unsigned int passengersIndex)
-{
-    if (trainsIndex == MAX_TRAINS_COUNT)
-    {
-        return 0;
-    }
-
-    unsigned int maxPassengersCount = sTrainPassengers.size() - ((MAX_TRAINS_COUNT - trainsIndex - 1) * sCarriagesPerTrain);
-
-    unsigned int passengers = 0;
-    for (unsigned int i = passengersIndex; i < maxPassengersCount; ++i)
-    {
-        if (sMaxPassengers[trainsIndex][passengersIndex] > 0)
-        {
-            passengers = std::max(passengers, sMaxPassengers[trainsIndex][passengersIndex]);
-
-            break;
-        }
-
-        passengers = std::max(passengers, GetMaxPassengersRecursive(trainsIndex + 1, i + sCarriagesPerTrain) + sTrainPassengers[i]);
-    }
-
-    sMaxPassengers[trainsIndex][passengersIndex] = passengers;
-
-    return passengers;
-}
+unsigned int sMaxPassengers[MAX_TRAINS_COUNT + 2][MAX_CARRIAGES_COUNT] = { 0, };
 
 int main()
 {
@@ -72,7 +46,32 @@ int main()
         sTrainPassengers.push_back(trainPassengersCount);
     }
 
-    std::cout << GetMaxPassengersRecursive(0, 0);
+    for (unsigned int train = 0; train < MAX_TRAINS_COUNT; ++train)
+    {
+        for (unsigned int carriage = train * sCarriagesPerTrain; carriage < sTrainPassengers.size() - 1; ++carriage)
+        {
+            sMaxPassengers[train][carriage + 1] = std::max(sMaxPassengers[train][carriage + 1], sMaxPassengers[train][carriage]);
+
+            unsigned int nextCarriage = carriage + sCarriagesPerTrain;
+            if (nextCarriage < sTrainPassengers.size())
+            {
+                sMaxPassengers[train + 1][nextCarriage] = sMaxPassengers[train][carriage] + sTrainPassengers[carriage];
+            }
+        }
+    }
+
+    unsigned int maxPassengersCount = 0;
+    for (unsigned int carriage = 0; carriage < sTrainPassengers.size(); ++carriage)
+    {
+        if (carriage <= 0)
+        {
+            continue;
+        }
+
+        maxPassengersCount = std::max(maxPassengersCount, sMaxPassengers[MAX_TRAINS_COUNT - 1][carriage] + sTrainPassengers[carriage]);
+    }
+
+    std::cout << maxPassengersCount;
 
     return 0;
 }
