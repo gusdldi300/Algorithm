@@ -3,7 +3,7 @@
 #include <stack>
 #include <unordered_set>
 
-#define MAX_NODES_COUNT (100001U)
+#define MAX_NODES_COUNT (10001U)
 
 int main()
 {
