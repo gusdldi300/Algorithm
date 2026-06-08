@@ -1,52 +1,63 @@
 #include <iostream>
-
-#define MAX_COUNTRIES_COUNT (10001U)
+#include <vector>
 
 int main()
 {
+    std::cin.tie(NULL);
+    std::ios_base::sync_with_stdio(false);
+
     unsigned int countriesCount;
     std::cin >> countriesCount;
     
-    int countryNeedFunds[MAX_COUNTRIES_COUNT];
+    std::vector<int> countriesNeedFunds;
+    int endFund = 0;
+
     for (unsigned int i = 0; i < countriesCount; ++i)
     {
-        std::cin >> countryNeedFunds[i];
+        int fund;
+        std::cin >> fund;
+
+        countriesNeedFunds.push_back(fund);
+
+        endFund = std::max(endFund, fund);
     }
 
-    int maxFund;
-    std::cin >> maxFund;
+    int maxTotalFund;
+    std::cin >> maxTotalFund;
 
     int startFund = 0;
-    int endFund = maxFund;
 
-    int maxNeedFund = 0;
+    int maxFund = 0;
     while (startFund <= endFund)
     {
-        int checkFund = (startFund + endFund) / 2;
-        
-        int needFund = 0;
-        int fundSum = 0;
-        for (unsigned int i = 0; i < countriesCount; ++i)
-        {
-            int clippedFund = std::min(checkFund, countryNeedFunds[i]);
-            needFund = std::max(needFund, clippedFund);
+        int candidateMaxFund = (startFund + endFund) / 2;
 
-            fundSum += clippedFund;
+        int totalFund = 0;
+        for (int fund : countriesNeedFunds)
+        {
+            if (fund >= candidateMaxFund)
+            {
+                totalFund += candidateMaxFund;
+
+                continue;
+            }
+
+            totalFund += fund;
         }
-        
-        if (fundSum <= maxFund)
-        {
-            maxNeedFund = std::max(maxNeedFund, needFund);
 
-            startFund = checkFund + 1;
+        if (totalFund <= maxTotalFund)
+        {
+            maxFund = candidateMaxFund;
+
+            startFund = candidateMaxFund + 1;
         }
         else
         {
-            endFund = checkFund - 1;
+            endFund = candidateMaxFund - 1;
         }
     }
 
-    std::cout << maxNeedFund;
+    std::cout << maxFund;
 
     return 0;
 } 
