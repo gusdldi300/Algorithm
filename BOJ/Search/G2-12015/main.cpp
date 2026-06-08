@@ -3,33 +3,31 @@
 
 int main()
 {
+    std::cin.tie(NULL);
+    std::ios_base::sync_with_stdio(false);
+
     unsigned int numbersCount;
     std::cin >> numbersCount;
 
-    std::vector<unsigned int> numbers;
-    for (unsigned int i = 0; i < numbersCount; ++i)
+    std::vector<unsigned int> ascendNumbers;
+
+    unsigned int number;
+    std::cin >> number;
+    ascendNumbers.push_back(number);
+
+    for (unsigned int i = 1; i < numbersCount; ++i)
     {
-        unsigned int number;
         std::cin >> number;
 
-        numbers.push_back(number);
-    }
-
-    std::vector<unsigned int> ascendNumbers;
-    ascendNumbers.push_back(numbers[0]);
-
-    for (unsigned int i = 1; i < numbers.size(); ++i)
-    {
-        auto equalLowerIter = std::lower_bound(ascendNumbers.begin(), ascendNumbers.end(), numbers[i]);
-        if (equalLowerIter == ascendNumbers.end())
+        if (number > ascendNumbers.back())
         {
-            ascendNumbers.push_back(numbers[i]);
+            ascendNumbers.push_back(number);
 
             continue;
         }
 
-        unsigned int replaceIndex = static_cast<unsigned int>(equalLowerIter - ascendNumbers.begin());
-        ascendNumbers[replaceIndex] = numbers[i];
+        unsigned int equalLessIndex = static_cast<unsigned int>(std::lower_bound(ascendNumbers.begin(), ascendNumbers.end(), number) - ascendNumbers.begin());
+        ascendNumbers[equalLessIndex] = number;
     }
 
     std::cout << ascendNumbers.size();

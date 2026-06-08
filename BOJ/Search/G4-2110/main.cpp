@@ -1,58 +1,65 @@
+
+#include <climits>
 #include <iostream>
 #include <vector>
 #include <algorithm>
 
 int main()
 {
-    unsigned int housesCount;
-    unsigned int targetCount;
-    
-    std::cin >> housesCount >> targetCount;
+    std::cin.tie(NULL);
+    std::ios_base::sync_with_stdio(false);
 
-    std::vector<int> houseLocations;
+    unsigned int housesCount;
+    unsigned int maxRoutersCount;
+    std::cin >> housesCount >> maxRoutersCount;
+
+    std::vector<unsigned int> houses;
     for (unsigned int i = 0; i < housesCount; ++i)
     {
-        int location;
-        std::cin >> location;
+        unsigned int house;
+        std::cin >> house;
 
-        houseLocations.push_back(location);
+        houses.push_back(house);
     }
 
-    std::sort(houseLocations.begin(), houseLocations.end());
+    std::sort(houses.begin(), houses.end());
 
-    int startDistance = 0;
-    int endDistance = houseLocations[houseLocations.size() - 1];
+    unsigned int startDistance = 0;
+    unsigned int endDistance = houses[houses.size() - 1] - houses[0];
 
-    int maxDistance = 0;
+    unsigned int maxClosestDistance = UINT_MAX;
     while (startDistance <= endDistance)
     {
-        int checkDistance = (startDistance + endDistance) / 2;
-
-        unsigned int setCount = 1;
-        int setLocation = houseLocations[0] + checkDistance;
-        for (unsigned int i = 1; i < houseLocations.size(); ++i)
+        unsigned int closestDistance = (endDistance + startDistance) / 2;
+        
+        unsigned int lastRouter = houses[0];
+        unsigned int routersCount = 1;
+        
+        for (unsigned int i = 1; i < housesCount; ++i)
         {
-            if (houseLocations[i] >= setLocation)
+            unsigned int house = houses[i];
+            
+            if (house - lastRouter >= closestDistance)
             {
-                setLocation = houseLocations[i] + checkDistance;
-                
-                ++setCount;
+                ++routersCount;
+
+                lastRouter = house;
             }
         }
 
-        if (setCount >= targetCount)
+        if (routersCount >= maxRoutersCount)
         {
-            maxDistance = checkDistance;
+            maxClosestDistance = closestDistance;
             
-            startDistance = checkDistance + 1;
+            startDistance = closestDistance + 1;
         }
         else
         {
-            endDistance = checkDistance - 1;
+            endDistance = closestDistance - 1;
         }
     }
-    
-    std::cout << maxDistance;
+
+    std::cout << maxClosestDistance;
 
     return 0;
 }
