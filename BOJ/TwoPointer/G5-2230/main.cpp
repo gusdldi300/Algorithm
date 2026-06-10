@@ -23,19 +23,26 @@ int main()
     std::sort(numbersAscend.begin(), numbersAscend.end());
 
     int minDifference = INT_MAX;
-    unsigned int startIndex = 0;
-    for (unsigned int endIndex = 0; endIndex < numbersAscend.size(); ++endIndex)
+    unsigned int rightIndex = 0;
+    for (unsigned int leftIndex = 0; leftIndex < numbersCount; ++leftIndex)
     {
-        while (startIndex < numbersAscend.size())
+        while (rightIndex < numbersCount)
         {
-            int difference = numbersAscend[endIndex] - numbersAscend[startIndex];
-            if (difference < targetDifference)
+            int difference = numbersAscend[rightIndex] - numbersAscend[leftIndex];
+
+            if (difference >= targetDifference)
+            {
+                minDifference = std::min(minDifference, difference);
+
+                break;
+            }
+
+            if (rightIndex >= (numbersCount - 1))
             {
                 break;
             }
 
-            minDifference = std::min(minDifference, difference);
-            ++startIndex;
+            ++rightIndex;
         }
     }
 
