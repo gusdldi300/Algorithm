@@ -18,35 +18,35 @@ int main()
         numbers.push_back(number);
     }
 
-    unsigned int minLength = UINT_MAX;
+    unsigned int minSumLength = UINT_MAX;
     unsigned int continuousSum = 0;
 
-    unsigned int endIndex = 0;
-
-    for (unsigned int startIndex = 0; startIndex < numbers.size(); ++startIndex)
+    unsigned int rightIndex = 0;
+    for (unsigned int leftIndex = 0; leftIndex < numbersCount; ++leftIndex)
     {
         while (true)
         {
             if (continuousSum >= targetSum)
             {
-                minLength = std::min(minLength, endIndex - startIndex);
-
+                minSumLength = std::min(minSumLength, rightIndex - leftIndex);
+                
                 break;
             }
 
-            if (endIndex >= numbers.size())
+            if (rightIndex >= numbersCount)
             {
                 break;
             }
 
-            continuousSum += numbers[endIndex];
-            ++endIndex;
+            continuousSum += numbers[rightIndex];
+
+            ++rightIndex;
         }
 
-        continuousSum -= numbers[startIndex];
+        continuousSum -= numbers[leftIndex];
     }
-
-    std::cout << (minLength == UINT_MAX ? 0 : minLength);
+    
+    std::cout << (minSumLength == UINT_MAX ? 0 : minSumLength);
 
     return 0;
 }

@@ -1,13 +1,14 @@
 #include <iostream>
 #include <vector>
-#include <unordered_map>
+#include <unordered_set>
 
 int main()
 {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
+
     unsigned int numbersCount;
     std::cin >> numbersCount;
-    
-    std::unordered_map<unsigned int, unsigned int> numberCountMap;
     
     std::vector<unsigned int> numbers;
     for (unsigned int i = 0; i < numbersCount; ++i)
@@ -16,40 +17,36 @@ int main()
         std::cin >> number;
 
         numbers.push_back(number);
-        numberCountMap[number] = 0;
     }
 
-    unsigned long long uniqueNumbersCount = 0;
-
+    std::unordered_set<unsigned int> numberSet;
+    
     unsigned long long casesCount = 0;
-    unsigned int startIndex = 0;
-    for (unsigned int endIndex = 0; endIndex < numbersCount; ++endIndex)
-    {
-        unsigned int endNumber = numbers[endIndex];
-        uniqueNumbersCount++;
 
-        if (numberCountMap[endNumber] == 0)
+    unsigned int leftIndex = 0;
+    unsigned int rightIndex = 0;
+
+    while (rightIndex < numbersCount)
+    {
+        unsigned int checkNumber = numbers[rightIndex];
+        
+        if (numberSet.find(checkNumber) != numberSet.end())
         {
-            numberCountMap[endNumber] = 1;
-            casesCount += uniqueNumbersCount;
+            casesCount += (rightIndex - leftIndex);
+            numberSet.erase(numbers[leftIndex]);
+
+            ++leftIndex;
 
             continue;
         }
 
-        numberCountMap[endNumber]++;
+        numberSet.insert(checkNumber);
+        ++rightIndex;
+    }
 
-        for (startIndex; startIndex < numbersCount; ++startIndex)
-        {
-            if (numberCountMap[endNumber] == 1)
-            {
-                casesCount += uniqueNumbersCount;
-
-                break;
-            }
-
-            numberCountMap[numbers[startIndex]]--;
-            uniqueNumbersCount--;
-        }
+    for (leftIndex; leftIndex < numbersCount; ++leftIndex)
+    {
+        casesCount += (numbersCount - leftIndex);
     }
 
     std::cout << casesCount;
