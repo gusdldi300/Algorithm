@@ -20,14 +20,11 @@ int main()
 
     std::sort(balls.begin(), balls.end());
 
-    unsigned int firstTopIndex = 0;
-    unsigned int firstUnderIndex = ballsCount - 1;
-
     int minHeightDifference = INT_MAX;
 
     for (unsigned int firstTopIndex = 0; firstTopIndex < ballsCount; ++firstTopIndex)
     {
-        for (unsigned int firstUnderIndex = firstTopIndex + 1; firstUnderIndex < ballsCount; ++firstUnderIndex)
+        for (unsigned int firstUnderIndex = (firstTopIndex + 3); firstUnderIndex < ballsCount; ++firstUnderIndex)
         {
             int firstHeight = balls[firstTopIndex] + balls[firstUnderIndex];
 
