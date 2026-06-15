@@ -4,6 +4,9 @@
 
 int main()
 {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
+
     unsigned int numbersCount;
     unsigned int totalDeleteCount;
 
@@ -20,41 +23,48 @@ int main()
 
     unsigned int maxContinuosEvenNumbersCount = 0;
     unsigned int continuosEvenNumbersCount = 0;
-    unsigned int deleteCount = 0;
+    unsigned int leftDeleteCount = totalDeleteCount;
 
-    unsigned int startIndex = 0;
-    for (unsigned int endIndex = 0; endIndex < numbersCount; ++endIndex)
+    unsigned int rightIndex = 0;
+    for (unsigned int leftIndex = 0; leftIndex < numbersCount; ++leftIndex)
     {
-        if (numbers[endIndex] % 2 == 0)
+        while (true)
         {
-            continuosEvenNumbersCount++;
-
-            maxContinuosEvenNumbersCount = std::max(maxContinuosEvenNumbersCount, continuosEvenNumbersCount);
-
-            continue;
-        }
-
-        if (deleteCount < totalDeleteCount)
-        {
-            deleteCount++;
-
-            continue;
-        }
-
-        for (startIndex; startIndex <= endIndex; ++startIndex)
-        {
-            if (numbers[startIndex] % 2 != 0)
+            if (rightIndex == numbersCount)
             {
-                startIndex++;
-
-                break;
+                goto OUTER;
             }
 
-            continuosEvenNumbersCount--;
+            if (numbers[rightIndex] % 2 != 0)
+            {
+                if (leftDeleteCount == 0)
+                {
+                    break;
+                }
+
+                --leftDeleteCount;
+            }
+            else
+            {
+                ++continuosEvenNumbersCount;
+                
+                maxContinuosEvenNumbersCount = std::max(maxContinuosEvenNumbersCount, continuosEvenNumbersCount);
+            }
+
+            ++rightIndex;
         }
 
+        if (numbers[leftIndex] % 2 != 0)
+        {
+            ++leftDeleteCount;
+        }
+        else
+        {
+            --continuosEvenNumbersCount;
+        }
     }
 
+OUTER:
     std::cout << maxContinuosEvenNumbersCount;
 
     return 0;
