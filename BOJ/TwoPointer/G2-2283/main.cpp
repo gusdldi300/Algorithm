@@ -39,16 +39,18 @@ int main()
     {
         if (totalLength == targetLength)
         {
-            goto PRINT_LABEL;
-        }
+            std::cout << leftIndex << ' ' << rightIndex;
 
-        if (rightIndex >= MAX_LINE_LENGTH)
-        {
-            break;
+            goto OUT_LABEL;
         }
 
         if (totalLength < targetLength)
         {
+            if (rightIndex >= MAX_LINE_LENGTH)
+            {
+                break;
+            }
+
             totalLength += pLinePoints[rightIndex];
 
             rightIndex++;
@@ -61,27 +63,9 @@ int main()
         }
     }
 
-    while (leftIndex < MAX_LINE_LENGTH)
-    {
-        totalLength -= pLinePoints[leftIndex];
-        leftIndex++;
+    std::cout << "0 0";
 
-        if (totalLength == targetLength)
-        {
-            break;
-        }
-    }
-
-PRINT_LABEL:
-    if (leftIndex == rightIndex)
-    {
-        std::cout << "0 0";
-    }
-    else
-    {
-        std::cout << leftIndex << ' ' << rightIndex;
-    }
-
+OUT_LABEL:
     delete[] pLinePoints;
 
     return 0;
