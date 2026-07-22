@@ -28,7 +28,7 @@ Person::Person(Person&& other)
 
 bool Person::operator==(const Person& other) const
 {
-    if (other == *this)
+    if (&other == this)
     {
         return true;
     }

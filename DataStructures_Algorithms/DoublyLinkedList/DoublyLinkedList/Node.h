@@ -29,7 +29,7 @@ Node<T>::Node(T&& value)
     : mPrevNodeOrNull(nullptr)
     , mNextNodeOrNull(nullptr)
 {
-    mValue = new T(value);
+    mValue = new T(std::move(value));
 }
 
 template<typename T>
@@ -59,7 +59,7 @@ void Node<T>::SetPrevNode(Node<T>* nodeOrNull)
 template<typename T>
 void Node<T>::SetNextNode(Node<T>* nodeOrNull)
 {
-    mPrevNodeOrNull = nodeOrNull;
+    mNextNodeOrNull = nodeOrNull;
 }
 
 template<typename T>

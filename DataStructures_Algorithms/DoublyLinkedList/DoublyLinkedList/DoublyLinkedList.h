@@ -20,6 +20,7 @@ public:
 
     void AddFront(T&& value);
     void AddBack(T&& value);
+    bool Add(unsigned int index, T&& value);
 
     bool RemoveFront();
     bool RemoveBack();
@@ -89,7 +90,7 @@ const T* DoublyLinkedList<T>::GetValue(unsigned int index)
 template<typename T>
 bool DoublyLinkedList<T>::HasValue(const T& value) const
 {
-    return getValueOrNull(value) == nullptr ? false : true;
+    return getNodeOrNull(value) == nullptr ? false : true;
 }
 
 template<typename T>
@@ -115,43 +116,78 @@ DoublyLinkedList<T>::~DoublyLinkedList()
 template<typename T>
 void DoublyLinkedList<T>::AddFront(T&& value)
 {
-    ++mSize;
-    
-    Node<T>* newNode = new Node<T>(value);
+    Node<T>* newNode = new Node<T>(std::move(value));
+
     if (IsEmpty())
     {
-        mHeadOrNull = newNode;
-        mTailOrNull = mHeadOrNull;
+        mTailOrNull = newNode;
+    }
+    else
+    {
+        assert(mHeadOrNull != nullptr);
 
-        return;
+        mHeadOrNull->SetPrevNode(newNode);
+        newNode->SetNextNode(mHeadOrNull);
     }
 
-    assert(mHeadOrNull != nullptr);
-    mHeadOrNull->SetPrevNode(newNode);
-    newNode->SetNextNode(mHeadOrNull);
-
+    ++mSize;
     mHeadOrNull = newNode;
 }
 
 template<typename T>
 void DoublyLinkedList<T>::AddBack(T&& value)
 {
-    ++mSize;
-    
-    Node<T>* newNode = new Node<T>(value);
+    Node<T>* newNode = new Node<T>(std::move(value));
+
     if (IsEmpty())
     {
         mHeadOrNull = newNode;
-        mTailOrNull = mHeadOrNull;
+    }
+    else
+    {
+        assert(mTailOrNull != nullptr);
 
-        return;
+        newNode->SetPrevNode(mTailOrNull);
+        mTailOrNull->SetNextNode(newNode);
     }
 
-    assert(mTailOrNull != nullptr);
-    mTailOrNull->SetNextNode(newNode);
-    newNode->SetPrevNode(mTailOrNull);
-
+    ++mSize;
     mTailOrNull = newNode;
+}
+
+template<typename T>
+bool DoublyLinkedList<T>::Add(unsigned int index, T&& value)
+{
+    if (index > mSize)
+    {
+        return false;
+    }
+
+    if (index == 0)
+    {
+        AddFront(std::move(value));
+    }
+    else if (index == mSize)
+    {
+        AddBack(std::move(value));
+    }
+    else
+    {
+        Node<T>* newNode = new Node<T>(std::move(value));
+        Node<T>* nextNode = getNodeOrNull(index);
+        assert(nextNode != nullptr);
+
+        Node<T>* lastNode = nextNode->GetPrevNodeOrNull();
+        lastNode->SetNextNode(newNode);
+        newNode->SetPrevNode(nextNode->GetPrevNodeOrNull());
+
+        newNode->SetNextNode(nextNode);
+        nextNode->SetPrevNode(newNode);
+
+        ++mSize;
+    }
+
+    return true;
 }
 
 template<typename T>
@@ -187,7 +223,7 @@ bool DoublyLinkedList<T>::Remove(const T& value)
         return false;
     }
 
-    removeNode();
+    removeNode(deleteNodeOrNull);
     return true;
 }
 
@@ -199,7 +235,7 @@ bool DoublyLinkedList<T>::RemoveRandom()
         return false;
     }
 
-    unsigned int randomIndex = (std::rand() % mSize) - 1;
+    unsigned int randomIndex = std::rand() % mSize;
     Node<T>* deleteNode = getNodeOrNull(randomIndex);
     removeNode(deleteNode);
     
@@ -227,7 +263,7 @@ Node<T>* DoublyLinkedList<T>::getNodeOrNull(const T& value) const
     while (nodeOrNull != nullptr)
     {
         // Todo: T equals
-        if (*nodeOrNull == value)
+        if (*nodeOrNull->GetValue() == value)
         {
             return nodeOrNull;
         }
@@ -254,8 +290,6 @@ void DoublyLinkedList<T>::removeNode(Node<T>* deleteNode)
 
         deleteNode->GetNextNodeOrNull()->SetPrevNode(nullptr);
         deleteNode->SetNextNode(nullptr);
-
-        assert(mHeadOrNull == mTailOrNull);
     }
     else if (deleteNode == mTailOrNull)
     {
@@ -263,8 +297,6 @@ void DoublyLinkedList<T>::removeNode(Node<T>* deleteNode)
 
         deleteNode->GetPrevNodeOrNull()->SetNextNode(nullptr);
         deleteNode->SetPrevNode(nullptr);
-
-        assert(mHeadOrNull == mTailOrNull);
     }
     else
     {
