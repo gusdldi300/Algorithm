@@ -1,14 +1,12 @@
+
+#include <algorithm>
 #include <iostream>
 #include <cstring>
 
-#define MAX_MAP_SIZE (501U)
-#define MAX_DIRECTIONS_COUNT (4U)
+#define MAX_MAP_SIZE (501)
+#define MAX_DIRECTIONS_COUNT (4)
 
-static int sMapSize;
-static int sMoveCounts[MAX_MAP_SIZE][MAX_MAP_SIZE];
-static unsigned int sMap[MAX_MAP_SIZE][MAX_MAP_SIZE] = { 0, };
-
-static const std::pair<int, int> MOVE_DIRECTIONS[MAX_DIRECTIONS_COUNT] =
+static const std::pair<int, int> MOVE_POSITIONS[MAX_DIRECTIONS_COUNT] =
 {
     { -1, 0 },
     { 0, 1 },
@@ -16,38 +14,48 @@ static const std::pair<int, int> MOVE_DIRECTIONS[MAX_DIRECTIONS_COUNT] =
     { 0, -1 }
 };
 
-static unsigned int GetMoveCountRecursive(int row, int col)
+static int sMapSize;
+static int sMap[MAX_MAP_SIZE][MAX_MAP_SIZE] = { 0, };
+static int sMaxMoveCounts[MAX_MAP_SIZE][MAX_MAP_SIZE];
+
+static int GetMaxMoveCountRecursive(int row, int col)
 {
-    if (sMoveCounts[row][col] >= 0)
+    if (sMaxMoveCounts[row][col] >= 0)
     {
-        return sMoveCounts[row][col];
+        return sMaxMoveCounts[row][col];
     }
 
-    unsigned int moveCount = 0;
+    int moveCount = 1;
     for (unsigned int dirIndex = 0; dirIndex < MAX_DIRECTIONS_COUNT; ++dirIndex)
     {
-        int nextRow = row + MOVE_DIRECTIONS[dirIndex].first;
-        int nextCol = col + MOVE_DIRECTIONS[dirIndex].second;
+        int nextRow = row + MOVE_POSITIONS[dirIndex].first;
+        int nextCol = col + MOVE_POSITIONS[dirIndex].second;
 
-        if (nextRow < 0 || nextRow >= sMapSize || nextCol < 0 || nextCol >= sMapSize)
+        if (nextRow < 0 || nextRow >= MAX_MAP_SIZE ||
+            nextCol < 0 || nextCol >= MAX_MAP_SIZE)
         {
             continue;
         }
 
-        if (sMap[nextRow][nextCol] <= sMap[row][col])
+        if (sMap[row][col] >= sMap[nextRow][nextCol])
         {
             continue;
         }
 
-        moveCount = std::max(moveCount, GetMoveCountRecursive(nextRow, nextCol) + 1);
+        int nextMoveCounts = GetMaxMoveCountRecursive(nextRow, nextCol) + 1;
+        moveCount = std::max(moveCount, nextMoveCounts);
     }
 
-    sMoveCounts[row][col] = moveCount;
+    sMaxMoveCounts[row][col] = moveCount;
+
     return moveCount;
 }
 
 int main()
 {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
+
     std::cin >> sMapSize;
     for (int row = 0; row < sMapSize; ++row)
     {
@@ -57,17 +65,18 @@ int main()
         }
     }
 
-    memset(sMoveCounts, -1, sizeof(sMoveCounts));
-    unsigned int maxMoveCount = 0;
+    memset(sMaxMoveCounts, -1, sizeof(sMaxMoveCounts));
+
+    int maxMoveCount = 0;
     for (int row = 0; row < sMapSize; ++row)
     {
         for (int col = 0; col < sMapSize; ++col)
         {
-            maxMoveCount = std::max(maxMoveCount, GetMoveCountRecursive(row, col));
+            maxMoveCount = std::max(maxMoveCount, GetMaxMoveCountRecursive(row, col));
         }
     }
 
-    std::cout << maxMoveCount + 1;
+    std::cout << maxMoveCount;
 
     return 0;
 }
