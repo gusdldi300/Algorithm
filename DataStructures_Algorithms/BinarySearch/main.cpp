@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "BinarySearch.h"
+#include <iostream>
 
 int main()
 {
@@ -98,7 +99,8 @@ int main()
 
         assert(BinarySearch::GetNumberFirstIndex(20, numbersAscend) == 10);
         assert(BinarySearch::GetNumberLastIndex(20, numbersAscend) == 11);
-    }
 
+    }
+    
     return 0;
 }

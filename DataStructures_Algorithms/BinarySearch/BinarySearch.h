@@ -2,8 +2,6 @@
 
 #include <vector>
 
-#include "Person.h"
-
 class BinarySearch
 {
 public:

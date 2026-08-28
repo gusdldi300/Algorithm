@@ -4,8 +4,6 @@
 
 #include "Dijkstra.h"
 
-
-
 int main()
 {
     const unsigned int IDS_SIZE = 6U;
